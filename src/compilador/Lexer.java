@@ -30,12 +30,16 @@ public class Lexer {
             throw e;
         }
 //Insere palavras reservadas na HashTable
-        reserve(new Word("if", Tag.IF));
-        reserve(new Word("program", Tag.PRG));
-        reserve(new Word("begin", Tag.BEG));
-        reserve(new Word("end", Tag.END));
-        reserve(new Word("type", Tag.TYPE));
+        reserve(new Word("program", Tag.PROGRAM));
         reserve(new Word("int", Tag.INT));
+        reserve(new Word("float", Tag.FLOAT));
+        reserve(new Word("if", Tag.IF));
+        reserve(new Word("else", Tag.ELSE));
+        reserve(new Word("repeat", Tag.REPEAT));
+        reserve(new Word("until", Tag.UNTIL));
+        reserve(new Word("scan", Tag.SCAN));
+        reserve(new Word("print", Tag.PRINT));
+        
     }
     private void reserve(Word w) {
         words.put(w.getLexeme(), w); // lexema é a chave para entrada na hashTable
@@ -106,7 +110,7 @@ public class Lexer {
                 value = 10 * value + Character.digit(ch, 10);
                 readch();
             } while (Character.isDigit(ch));
-            return new Num(value);
+            return new NumInt(value);
         }
         //Identificadores
         if (Character.isLetter(ch)) {

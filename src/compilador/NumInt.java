@@ -9,11 +9,11 @@ package compilador;
  *
  * @author Larissa
  */
-public class Num extends Token{
+public class NumInt extends Token{
     public final int value;
 
-    public Num(int value) {
-        super(Tag.NUM);
+    public NumInt(int value) {
+        super(Tag.INT_NUM);
         this.value = value;
     }
 
