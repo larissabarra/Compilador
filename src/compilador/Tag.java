@@ -65,11 +65,13 @@ public class Tag {
 
             GT = '>',
             LT = '<',
+            NOT = '!',
         
             EQ = 273, // ==
             GE = 274, // >=
             LE = 275, // <=
             NE = 276, // <>
+            NG = 283, // !>
 
             // Operadores Lógicos
             
@@ -81,7 +83,8 @@ public class Tag {
             INT_NUM = 279,
             FLOAT_NUM = 280,
             LITERAL = 281,
-            ID = 282;
-            
+            ID = 282,
+            TRUE = 284,
+            FALSE = 285;
             
 }
