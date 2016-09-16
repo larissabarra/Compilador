@@ -10,10 +10,14 @@ package compilador;
  * @author Larissa
  */
 public class Id {
-    private String name; //puxo uma word?
+    private String name; //valor (nome do identificador ou valor da constante)
     private int type; //vem da tag
     private String bloco; //vai ter?
 
+    public Id(String name) {
+        this.name = name;
+    }
+    
     public String getName() {
         return name;
     }

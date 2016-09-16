@@ -13,78 +13,65 @@ public class Tag {
 
     public final static int 
             
-            //Palavras reservadas   
+        //Palavras reservadas   
+        PROGRAM = 256,
             
-            PROGRAM = 256,
+        // Tipos de Dados            
+        INT = 257,
+        FLOAT = 258,
             
-            // Tipos de Dados
+        // Controle de Fluxo
+        IF = 259,
+        ELSE = 260,
             
-            INT = 257,
-            FLOAT = 258,
+        // Estrutura de Repetição
+        REPEAT = 261,
+        UNTIL = 262,
             
-            // Controle de Fluxo
-            
-            IF = 259,
-            ELSE = 260,
-            
-            // Estrutura de Repetição
-            
-            REPEAT = 261,
-            UNTIL = 262,
-            
-            // Comandos
-            
-            SCAN = 263,
-            PRINT = 264,
+        // Comandos
+        SCAN = 263,
+        PRINT = 264,
 
-            // Caracteres especiais
+        // Caracteres especiais
+        DOIS_PONTOS = ':',
+        PONTO_VIRGULA = ';',
             
-            DOIS_PONTOS = ':',
-            PONTO_VIRGULA = ';',
+        // Escopo
+        AC = '{',
+        FC = '}',
+        AP = '(',
+        FP = ')',
             
-            // Escopo
+        // Operadores Aritméticos
+        ADD = '+',
+        SUB = '-',
+        MULT = '*',
+        DIV = '/',
             
-            AC = '{',
-            FC = '}',
-            
-            AP = '(',
-            FP = ')',
-            
-            // Operadores Aritméticos
-            
-            ADD = '+',
-            SUB = '-',
-            MULT = '*',
-            DIV = '/',
-            
-            // Operador de Atribuição
-            
-            ATRIB = '=',
+        // Operador de Atribuição
+        ATRIB = '=',
                         
-            // Operadores de Comparação
-
-            GT = '>',
-            LT = '<',
-            NOT = '!',
+        // Operadores de Comparação
+        GT = '>',
+        LT = '<',
+        NOT = '!',
         
-            EQ = 273, // ==
-            GE = 274, // >=
-            LE = 275, // <=
-            NE = 276, // <>
-            NG = 283, // !>
+        EQ = 273, // ==
+        GE = 274, // >=
+        LE = 275, // <=
+        NE = 276, // <>
+        NG = 283, // !>
 
-            // Operadores Lógicos
-            
-            OR = 277,
-            AND = 278,
+        // Operadores Lógicos
+        OR = 277,
+        AND = 278,
                       
-            //Outros tokens
-            
-            INT_NUM = 279,
-            FLOAT_NUM = 280,
-            LITERAL = 281,
-            ID = 282,
-            TRUE = 284,
-            FALSE = 285;
+        //Outros tokens
+        INT_NUM = 279,
+        FLOAT_NUM = 280,
+        LITERAL = 281,
+        ID = 282,
+        TRUE = 284,
+        FALSE = 285;
             
 }

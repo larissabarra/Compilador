@@ -11,6 +11,7 @@ package compilador;
  */
 public class Word extends Token{
     private String lexeme = "";
+    
     public static final Word and = new Word("&&", Tag.AND);
     public static final Word or = new Word("||", Tag.OR);
     public static final Word eq = new Word("==", Tag.EQ);
@@ -25,6 +26,7 @@ public class Word extends Token{
         lexeme = s;
     }
 
+    @Override
     public String toString() {
         return "" + lexeme;
     }
