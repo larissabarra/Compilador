@@ -75,6 +75,10 @@ public class Lexer {
             }
         }
 
+        // Fim de arquivo
+        if(ch == Character.MAX_VALUE)
+            return null;
+        
         switch (ch) {
             //Operadores
             case '&':
