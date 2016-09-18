@@ -1,0 +1,9 @@
+a, _ : int;
+ b : float;
+{
+ scan (a);
+ b = a * a;
+ print (a);
+ b = b + a/2 * (a + 5);
+ print (b);
+}

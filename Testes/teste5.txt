@@ -1,0 +1,18 @@
+Program
+% Programa com if
+
+ j, k : int;
+ a, j float;
+
+ {
+ scan(j);
+ scan(k);
+
+ if (k <> 0) {
+ result = j/k
+ }
+ else {
+ result := 0 };
+
+
+ print(result);
