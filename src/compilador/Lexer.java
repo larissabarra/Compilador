@@ -238,14 +238,14 @@ public class Lexer {
             String s = sb.toString();
 
             // Verifica a existência da palavra como palavra chave
-            Word w = new Word(s, "ID", Tag.ID, false);
+            Word w = new Word(s, Tag.ID);
             Id id = (Id) tabelaSimbolos.get(w);
             if (id != null) {
                 return w; //palavra já existe na HashTable
             }
             
             // Verifica a existência da palavra como identificador
-            w = new Word(s, "ID", Tag.ID, true);
+            w = new Word(s, "ID", Tag.ID);
             id = (Id) tabelaSimbolos.get(w);
             if (id != null) {
                 return w; //palavra já existe na HashTable

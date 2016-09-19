@@ -12,35 +12,30 @@ package compilador;
 public class Word extends Token{
     private String lexeme = "";
     
-    // Quando isId for identificador, isId receberá valor true
-    private boolean isId;
-    
-    public static final Word and = new Word("&&", "AND", Tag.AND, false);
-    public static final Word or = new Word("||", "OR", Tag.OR, false);
-    public static final Word eq = new Word("==", "EQ", Tag.EQ, false);
-    public static final Word ne = new Word("<>", "NE", Tag.NE, false);
-    public static final Word le = new Word("<=", "LE", Tag.LE, false);
-    public static final Word ge = new Word(">=", "GE", Tag.GE, false);
-    public static final Word dif = new Word("!>", "DIF", Tag.DIF, false);
-
+    public static final Word and = new Word("&&", "AND", Tag.AND);
+    public static final Word or = new Word("||", "OR", Tag.OR);
+    public static final Word eq = new Word("==", "EQ", Tag.EQ);
+    public static final Word ne = new Word("<>", "NE", Tag.NE);
+    public static final Word le = new Word("<=", "LE", Tag.LE);
+    public static final Word ge = new Word(">=", "GE", Tag.GE);
+    public static final Word dif = new Word("!>", "DIF", Tag.DIF);
 
     // Construtor adicionado para adicionar símbolos e identificadores
-    public Word(String s, String nome, int tag, boolean isId) {
+    public Word(String s, String nome, int tag) {
         super(nome, tag);
         lexeme = s;
-        this.isId = isId;
     }
     
     // Construtor utilizado para adicionar palavras chaves
+    // O nome do token das palavras chave será a própria palavra
     public Word(String s, int tag) {
-        super("ID", tag);
+        super(s, tag);
         lexeme = s;
-        isId = false;
     }
     
     @Override
     public String toString() {
-        if(isId)
+        if(nome.equals("ID"))
             return "<" + nome + ", " + lexeme + ">";
         else
             return "<" + lexeme + ">";
@@ -49,11 +44,5 @@ public class Word extends Token{
     public String getLexeme(){
         return lexeme;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof Word && ((Word) obj).isId == isId && ((Word) obj).lexeme == lexeme && super.equals(obj); //To change body of generated methods, choose Tools | Templates.
-    }
-    
     
 }

@@ -24,9 +24,4 @@ public class Token {
         return "<" + nome + ">";
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof Token && nome.equals(((Token) obj).nome) && ((Token) obj).tag == tag;
-    }
-    
 }

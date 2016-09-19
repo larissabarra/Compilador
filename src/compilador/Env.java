@@ -26,14 +26,14 @@ public class Env {
     /* Id é uma classe que representa os dados a serem armazenados na TS para */
     /* identificadores */
     public void put(Token w, Id i) {
-        table.put(w, i);
+        table.put(w.nome, i);
     }
     
     /* Este método retorna as informações (Id) referentes a determinado Token */
     /* O Token é pesquisado do ambiente atual para os anteriores */
     public Id get(Token w) {
         for (Env e = this; e != null; e = e.prev) {
-            Id found = (Id) e.table.get(w);
+            Id found = (Id) e.table.get(w.nome);
             if (found != null) { //se Token existir em uma das TS
                 return found;
             }
