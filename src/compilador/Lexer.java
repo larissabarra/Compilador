@@ -74,6 +74,27 @@ public class Lexer {
                 break;
             }
         }
+        
+        // Comentário de linha única
+        if(ch == '%') {
+            while(!readch('\n')) {}
+            line++;
+        }
+        
+        // Comentário de várias linhas
+        if(ch == '/') {
+            if(readch('*')) {
+                do {
+                    readch();
+                    if(ch == '\n') line++;
+                    else if(ch == '*' && readch('/')) break;
+                    else if(ch == Character.MAX_VALUE) return null;
+                } while(true);
+            } else {
+                Token t = new Token(Tag.DIV);
+                return t;
+            }
+        }
 
         // Fim de arquivo
         if(ch == Character.MAX_VALUE)

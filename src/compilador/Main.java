@@ -19,7 +19,7 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            Lexer l = new Lexer ("Testes/teste1.txt");
+            Lexer l = new Lexer ("Testes/teste4.txt");
             Token t = l.scan();
             while (t != null) {
                 System.out.println(t.toString());
