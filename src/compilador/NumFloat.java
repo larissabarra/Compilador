@@ -18,6 +18,6 @@ public class NumFloat extends Token{
     }
 
     public String toString() {
-        return "<" + nome + ", " + value + ">";
+        return "Token: <" + nome + ", " + value + ">";
     }
 }

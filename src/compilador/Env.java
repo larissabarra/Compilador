@@ -6,6 +6,9 @@
 package compilador;
 
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -39,5 +42,15 @@ public class Env {
             }
         }
         return null; //caso Token não exista em uma das TS
+    }
+    
+    public void imprime(){
+        System.out.println("\n***TABELA DE SÍMBOLOS***");
+        Set set = table.entrySet();
+        Iterator it = set.iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            System.out.println("<" + entry.getKey() + ", " + entry.getValue() + ">");
+         }
     }
 }

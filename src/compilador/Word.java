@@ -36,9 +36,9 @@ public class Word extends Token{
     @Override
     public String toString() {
         if(nome.equals("ID"))
-            return "<" + nome + ", " + lexeme + ">";
+            return "Token: <" + nome + ", " + lexeme + ">";
         else
-            return "<" + lexeme + ">";
+            return "Token: <" + lexeme + ">";
     }
     
     public String getLexeme(){

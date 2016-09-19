@@ -52,6 +52,11 @@ public class Lexer {
         reserve(new Word("true", Tag.TRUE));
         reserve(new Word("false", Tag.FALSE));
     }
+    
+    /* Método para imprimir TS */
+    public void imprimeTS() {
+        tabelaSimbolos.imprime();
+    }
 
     /* Método para inserir palavras reservadas na HashTable */
     private void reserve(Word w) {

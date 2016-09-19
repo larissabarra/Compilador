@@ -25,6 +25,8 @@ public class Main {
                 System.out.println(t.toString());
                 t = l.scan();
             }
+            
+            l.imprimeTS();
         } catch (FileNotFoundException ex) {
             System.out.println("Erro de arquivo");
         } catch (IOException ex) {

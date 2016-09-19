@@ -21,7 +21,7 @@ public class Token {
 
     @Override
     public String toString() {
-        return "<" + nome + ">";
+        return "Token: <" + nome + ">";
     }
 
 }
