@@ -35,6 +35,7 @@ public class Tag {
         // Caracteres especiais
         DOIS_PONTOS = ':',
         PONTO_VIRGULA = ';',
+        VIRGULA = ',',
             
         // Escopo
         AC = '{',
@@ -60,7 +61,7 @@ public class Tag {
         GE = 274, // >=
         LE = 275, // <=
         NE = 276, // <>
-        NG = 283, // !>
+        DIF = 283, // !>
 
         // Operadores Lógicos
         OR = 277,

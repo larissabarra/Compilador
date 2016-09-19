@@ -13,11 +13,11 @@ public class NumInt extends Token{
     public final int value;
 
     public NumInt(int value) {
-        super(Tag.INT_NUM);
+        super("INT_NUM", Tag.INT_NUM);
         this.value = value;
     }
 
     public String toString() {
-        return "" + value;
+        return "<" + nome + ", " + value + ">";
     }
 }

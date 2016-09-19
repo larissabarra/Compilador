@@ -110,7 +110,7 @@ public class Lexer {
                     //VOLTAR UMA POSIÇÃO
                     file.mark(10);
                     espera = true;
-                    Token t = new Token(Tag.DIV);
+                    Token t = new Token("DIV", Tag.DIV);
                     return t;
                 }
             } else {
@@ -129,13 +129,13 @@ public class Lexer {
                 if (readch('&')) {
                     return Word.and;
                 } else {
-                    return new Token('&');
+                    return new Token("AND", '&');
                 }
             case '|':
                 if (readch('|')) {
                     return Word.or;
                 } else {
-                    return new Token('|');
+                    return new Token("OR", '|');
                 }
             case '=':
                 if (readch('=')) {
@@ -144,7 +144,7 @@ public class Lexer {
                     //VOLTAR UMA POSIÇÃO
                     file.mark(10);
                     espera = true;
-                    return new Token(Tag.ATRIB);
+                    return new Token("ATRIB", Tag.ATRIB);
                 }
             case '<':
                 if (readch('=')) {
@@ -153,7 +153,7 @@ public class Lexer {
                     //VOLTAR UMA POSIÇÃO
                     file.mark(10);
                     espera = true;
-                    return new Token(Tag.LT);
+                    return new Token("LT", Tag.LT);
                 }
             case '>':
                 if (readch('=')) {
@@ -162,16 +162,16 @@ public class Lexer {
                     //VOLTAR UMA POSIÇÃO
                     file.mark(10);
                     espera = true;
-                    return new Token(Tag.GT);
+                    return new Token("GT", Tag.GT);
                 }
             case '!':
                 if (readch('>')) {
-                    return Word.ng;
+                    return Word.dif;
                 } else {
                     //VOLTAR UMA POSIÇÃO
                     file.mark(10);
                     espera = true;
-                    return new Token(Tag.NOT);
+                    return new Token("NOT", Tag.NOT);
                 }
         }
 
@@ -236,18 +236,64 @@ public class Lexer {
                 readch();
             } while (Character.isLetterOrDigit(ch));
             String s = sb.toString();
-            Word w = new Word(s, Tag.ID);
+
+            // Verifica a existência da palavra como palavra chave
+            Word w = new Word(s, "ID", Tag.ID, false);
             Id id = (Id) tabelaSimbolos.get(w);
             if (id != null) {
                 return w; //palavra já existe na HashTable
             }
+            
+            // Verifica a existência da palavra como identificador
+            w = new Word(s, "ID", Tag.ID, true);
+            id = (Id) tabelaSimbolos.get(w);
+            if (id != null) {
+                return w; //palavra já existe na HashTable
+            }
+            
             tabelaSimbolos.put(w, new Id(s, Tag.ID));
             return w;
         } //outros caracteres reconhecidos
-        else if(ch == ':' || ch == ';' || ch == ',' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '*' || ch == '+' || ch == '-') {
-            Token t = new Token(ch);
+        else{// if(ch == ':' || ch == ';' || ch == ',' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '*' || ch == '+' || ch == '-') {
+            
+            Token t = null;
+            
+            switch(ch){
+                case ':':
+                    t = new Token("DOIS_PONTOS", (int) ch);
+                    break;
+                case ';':
+                    t = new Token("PONTO_VIRGULA", (int) ch);
+                    break;
+                case ',':
+                    t = new Token("VIRGULA", (int) ch);
+                    break;
+                case '(':
+                    t = new Token("AP", (int) ch);
+                    break;
+                case ')':
+                    t = new Token("FP", (int) ch);
+                    break;
+                case '{':
+                    t = new Token("AC", (int) ch);
+                    break;
+                case '}':
+                    t = new Token("FC", (int) ch);
+                    break;
+                case '*':
+                    t = new Token("MULT", (int) ch);
+                    break;
+                case '+':
+                    t = new Token("ADD", (int) ch);
+                    break;
+                case '-':
+                    t = new Token("SUB", (int) ch);
+                    break;
+            }
+            
             ch = ' ';
-            return t;
+            if(t != null)
+                return t;
         }
 
         //Caracteres não especificados

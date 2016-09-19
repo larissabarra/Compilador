@@ -13,11 +13,11 @@ public class NumFloat extends Token{
     public final float value;
 
     public NumFloat(float value) {
-        super(Tag.FLOAT_NUM);
+        super("FLOAT_NUM", Tag.FLOAT_NUM);
         this.value = value;
     }
 
     public String toString() {
-        return "" + value;
+        return "<" + nome + ", " + value + ">";
     }
 }

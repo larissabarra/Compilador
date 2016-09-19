@@ -12,12 +12,21 @@ package compilador;
 public class Token {
     public final int tag; //constante que representa o token
 
-    public Token(int t) {
+    public final String nome;
+    
+    public Token(String nome, int t) {
         tag = t;
+        this.nome = nome;
     }
 
     @Override
     public String toString() {
-        return "" + tag;
+        return "<" + nome + ">";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Token && nome.equals(((Token) obj).nome) && ((Token) obj).tag == tag;
+    }
+    
 }
