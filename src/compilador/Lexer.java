@@ -64,17 +64,6 @@ public class Lexer {
     }
 
     public Token scan() throws IOException {
-        //Desconsidera delimitadores na entrada
-        for (;; readch()) {
-            if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\b') {
-                continue;
-            } else if (ch == '\n') {
-                line++; //conta linhas
-            } else {
-                break;
-            }
-        }
-        
         // Comentário de linha única
         if(ch == '%') {
             while(!readch('\n')) {}
@@ -93,6 +82,32 @@ public class Lexer {
             } else {
                 Token t = new Token(Tag.DIV);
                 return t;
+            }
+        }
+        
+        //Desconsidera delimitadores na entrada
+        for (;; readch()) {
+            if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\b') {
+                continue;
+            } else if (ch == '\n') {
+                line++; //conta linhas
+            } else if(ch == '%') { // Comentário de linha única
+                while(!readch('\n')) {}
+                line++;
+            } else if(ch == '/') { // Comentário de várias linhas
+                if(readch('*')) {
+                    do {
+                        readch();
+                        if(ch == '\n') line++;
+                        else if(ch == '*' && readch('/')) break;
+                        else if(ch == Character.MAX_VALUE) return null;
+                    } while(true);
+                } else {
+                    Token t = new Token(Tag.DIV);
+                    return t;
+                }
+            } else {
+                break;
             }
         }
 
