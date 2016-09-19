@@ -47,4 +47,7 @@ public class Id {
         this.bloco = bloco;
     }
     
+    public String toString(){
+        return String.valueOf(type);
+    }
 }

@@ -60,7 +60,7 @@ public class Lexer {
 
     /* Método para inserir palavras reservadas na HashTable */
     private void reserve(Word w) {
-        tabelaSimbolos.put(w, new Id(w.getLexeme())); //lexema é a chave para entrada na hashTable
+        tabelaSimbolos.put(w, new Id(w.getLexeme(), w.tag)); //lexema é a chave para entrada na hashTable
     }
 
     /* Lê o próximo caractere do arquivo */

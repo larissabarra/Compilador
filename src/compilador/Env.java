@@ -29,7 +29,11 @@ public class Env {
     /* Id é uma classe que representa os dados a serem armazenados na TS para */
     /* identificadores */
     public void put(Token w, Id i) {
-        table.put(w.nome, i);
+        
+        if(w instanceof Word)
+            table.put(((Word) w).getLexeme(), i);
+        else
+            table.put(w.nome, i);
     }
     
     /* Este método retorna as informações (Id) referentes a determinado Token */
@@ -50,7 +54,7 @@ public class Env {
         Iterator it = set.iterator();
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
-            System.out.println("<" + entry.getKey() + ", " + entry.getValue() + ">");
+            System.out.println("<" + entry.getKey() + ", " + ((Id)entry.getValue()).toString() + ">");
          }
     }
 }
