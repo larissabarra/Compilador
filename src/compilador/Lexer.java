@@ -5,9 +5,12 @@
  */
 package compilador;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  *
@@ -17,13 +20,20 @@ public class Lexer {
 
     public static int line = 1; //contador de linhas
     private char ch = ' '; //caractere lido do arquivo
-    private FileReader file;
+    private InputStream is = null; 
+    private InputStreamReader isr = null;
+    private BufferedReader file;
     private Env words = new Env(null);
+    private boolean espera = false;
 
     //Método Construtor
     public Lexer(String fileName) throws FileNotFoundException {
         try {
-            file = new FileReader(fileName);
+            is = new FileInputStream(fileName);
+            isr = new InputStreamReader(is);
+
+            // create new buffered reader
+            file = new BufferedReader(isr);
         } catch (FileNotFoundException e) {
             System.out.println("Arquivo não encontrado");
             throw e;
@@ -64,45 +74,42 @@ public class Lexer {
     }
 
     public Token scan() throws IOException {
-        // Comentário de linha única
-        if(ch == '%') {
-            while(!readch('\n')) {}
-            line++;
+        /*
+        Pra todos os casos que o caracter seguinte pode afetar o token, a posição do arquivo
+        foi salva usando a função file.mark() logo antes de ler o próximo. Assim, se ele não
+        completar o token esperado, é possível voltar 1 posição para que ele seja lido novamente
+        quando a função for chamada de novo.
+        */
+        if(espera) {
+            file.reset();
+            espera = false;
         }
-        
-        // Comentário de várias linhas
-        if(ch == '/') {
-            if(readch('*')) {
-                do {
-                    readch();
-                    if(ch == '\n') line++;
-                    else if(ch == '*' && readch('/')) break;
-                    else if(ch == Character.MAX_VALUE) return null;
-                } while(true);
-            } else {
-                Token t = new Token(Tag.DIV);
-                return t;
-            }
-        }
-        
         //Desconsidera delimitadores na entrada
         for (;; readch()) {
             if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\b') {
                 continue;
             } else if (ch == '\n') {
                 line++; //conta linhas
-            } else if(ch == '%') { // Comentário de linha única
-                while(!readch('\n')) {}
+            } else if (ch == '%') { // Comentário de linha única
+                while (!readch('\n')) {
+                }
                 line++;
-            } else if(ch == '/') { // Comentário de várias linhas
-                if(readch('*')) {
+            } else if (ch == '/') { // Comentário de várias linhas
+                if (readch('*')) {
                     do {
                         readch();
-                        if(ch == '\n') line++;
-                        else if(ch == '*' && readch('/')) break;
-                        else if(ch == Character.MAX_VALUE) return null;
-                    } while(true);
+                        if (ch == '\n') {
+                            line++;
+                        } else if (ch == '*' && readch('/')) {
+                            break;
+                        } else if (ch == Character.MAX_VALUE) {
+                            return null;
+                        }
+                    } while (true);
                 } else {
+                    //VOLTAR UMA POSIÇÃO
+                    file.mark(10);
+                    espera = true;
                     Token t = new Token(Tag.DIV);
                     return t;
                 }
@@ -112,9 +119,10 @@ public class Lexer {
         }
 
         // Fim de arquivo
-        if(ch == Character.MAX_VALUE)
+        if (ch == Character.MAX_VALUE) {
             return null;
-        
+        }
+
         switch (ch) {
             //Operadores
             case '&':
@@ -133,25 +141,37 @@ public class Lexer {
                 if (readch('=')) {
                     return Word.eq;
                 } else {
-                    return new Token('=');
+                    //VOLTAR UMA POSIÇÃO
+                    file.mark(10);
+                    espera = true;
+                    return new Token(Tag.ATRIB);
                 }
             case '<':
                 if (readch('=')) {
                     return Word.le;
                 } else {
-                    return new Token('<');
+                    //VOLTAR UMA POSIÇÃO
+                    file.mark(10);
+                    espera = true;
+                    return new Token(Tag.LT);
                 }
             case '>':
                 if (readch('=')) {
                     return Word.ge;
                 } else {
-                    return new Token('>');
+                    //VOLTAR UMA POSIÇÃO
+                    file.mark(10);
+                    espera = true;
+                    return new Token(Tag.GT);
                 }
             case '!':
                 if (readch('>')) {
                     return Word.ng;
                 } else {
-                    return new Token('!');
+                    //VOLTAR UMA POSIÇÃO
+                    file.mark(10);
+                    espera = true;
+                    return new Token(Tag.NOT);
                 }
         }
 
@@ -169,8 +189,8 @@ public class Lexer {
                     resto = 10 * resto + Character.digit(ch, 10);
                 }
                 readch();
-                if (ch == '.'){
-                    if(!isFloat) { //garantia que só vou achar 1 ponto 
+                if (ch == '.') {
+                    if (!isFloat) { //garantia que só vou achar 1 ponto 
                         isFloat = true;
                         val = value;
                     } else {
@@ -188,27 +208,8 @@ public class Lexer {
                 }
                 return new NumInt(value);
             }
-        }
-
-        //Identificadores
-        if (Character.isLetter(ch)) {
-            StringBuffer sb = new StringBuffer();
-            do {
-                sb.append(ch);
-                readch();
-            } while (Character.isLetterOrDigit(ch));
-            String s = sb.toString();
-            Word w = new Word(s, Tag.ID);
-            Id id = (Id) words.get(w);
-            if (id != null) {
-                return w; //palavra já existe na HashTable
-            }
-            words.put(w, new Id(s));
-            return w;
-        }
-
-        //Literal
-        if ((ch) == '"') {
+        }  //Literal
+        else if ((ch) == '"') {
             StringBuffer sb = new StringBuffer();
             do {
                 sb.append(ch);
@@ -222,11 +223,30 @@ public class Lexer {
             }
             words.put(w, new Id(s));
             return w;
+        } //Identificadores
+        else if (Character.isLetter(ch)) {
+            StringBuffer sb = new StringBuffer();
+            do {
+                sb.append(ch);
+                readch();
+            } while (Character.isLetterOrDigit(ch));
+            String s = sb.toString();
+            Word w = new Word(s, Tag.ID);
+            Id id = (Id) words.get(w);
+            if (id != null) {
+                return w; //palavra já existe na HashTable
+            }
+            words.put(w, new Id(s));
+            return w;
+        } //outros caracteres reconhecidos
+        else if(ch == ':' || ch == ';' || ch == ',' || ch == '(' || ch == ')' || ch == '{' || ch == '}') {
+            Token t = new Token(ch);
+            ch = ' ';
+            return t;
         }
 
         //Caracteres não especificados
-        Token t = new Token(ch);
-        ch = ' ';
-        return t;
+        System.out.println("Caractere não identificado na linha " + line);
+        return null;
     }
 }
