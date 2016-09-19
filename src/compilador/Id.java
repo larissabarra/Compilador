@@ -18,6 +18,11 @@ public class Id {
         this.name = name;
     }
     
+    public Id(String name, int type) {
+        this.name = name;
+        this.type = type;
+    }
+    
     public String getName() {
         return name;
     }

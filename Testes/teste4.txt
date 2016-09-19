@@ -1,6 +1,6 @@
 program
 
- i, j, k, @total, 1soma : int
+ i, j, k, total, soma : int
 
 scan(I);
 k = i * (5-i * 50 / 10;

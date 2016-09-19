@@ -23,7 +23,7 @@ public class Lexer {
     private InputStream is = null; 
     private InputStreamReader isr = null;
     private BufferedReader file;
-    private Env words = new Env(null);
+    private Env tabelaSimbolos = new Env(null);
     private boolean espera = false;
 
     //Método Construtor
@@ -55,7 +55,7 @@ public class Lexer {
 
     /* Método para inserir palavras reservadas na HashTable */
     private void reserve(Word w) {
-        words.put(w, new Id(w.getLexeme())); //lexema é a chave para entrada na hashTable
+        tabelaSimbolos.put(w, new Id(w.getLexeme())); //lexema é a chave para entrada na hashTable
     }
 
     /* Lê o próximo caractere do arquivo */
@@ -193,14 +193,19 @@ public class Lexer {
                     if (!isFloat) { //garantia que só vou achar 1 ponto 
                         isFloat = true;
                         val = value;
+                        readch();
                     } else {
                         //ERRO: achei mais de 1 ponto
                         System.out.println("Erro na linha " + line + ": float mal formatado");
+                        return null;
                     }
+                } else if(Character.isAlphabetic(ch)) { //se for uma letra vai ser tentativa de id
+                    System.out.println("Erro na linha " + line + ": identificador mal formatado");
+                    return null;
                 }
             } while (Character.isDigit(ch));
             if (isFloat) {
-                val += (resto / Math.pow(10, -("" + resto).length()));
+                val += (resto / Math.pow(10, (("" + resto).length())));
                 return new NumFloat(val);
             } else {
                 if (isZero) {
@@ -217,11 +222,11 @@ public class Lexer {
             } while ((ch) != '"' && (ch) != '\n');
             String s = sb.toString();
             Word w = new Word(s, Tag.LITERAL);
-            Id id = (Id) words.get(w);
+            Id id = (Id) tabelaSimbolos.get(w);
             if (id != null) {
                 return w;
             }
-            words.put(w, new Id(s));
+            tabelaSimbolos.put(w, new Id(s, Tag.LITERAL));
             return w;
         } //Identificadores
         else if (Character.isLetter(ch)) {
@@ -232,21 +237,21 @@ public class Lexer {
             } while (Character.isLetterOrDigit(ch));
             String s = sb.toString();
             Word w = new Word(s, Tag.ID);
-            Id id = (Id) words.get(w);
+            Id id = (Id) tabelaSimbolos.get(w);
             if (id != null) {
                 return w; //palavra já existe na HashTable
             }
-            words.put(w, new Id(s));
+            tabelaSimbolos.put(w, new Id(s, Tag.ID));
             return w;
         } //outros caracteres reconhecidos
-        else if(ch == ':' || ch == ';' || ch == ',' || ch == '(' || ch == ')' || ch == '{' || ch == '}') {
+        else if(ch == ':' || ch == ';' || ch == ',' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '*' || ch == '+' || ch == '-') {
             Token t = new Token(ch);
             ch = ' ';
             return t;
         }
 
         //Caracteres não especificados
-        System.out.println("Caractere não identificado na linha " + line);
+        System.out.println("Erro na linha " + line + ": símbolo não identificado");
         return null;
     }
 }
