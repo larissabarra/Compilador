@@ -32,6 +32,10 @@ public class Env {
         
         if(w instanceof Word)
             table.put(((Word) w).getLexeme(), i);
+        else if(w instanceof NumInt)
+            table.put(((NumInt) w).value, i);
+        else if(w instanceof NumFloat)
+            table.put(((NumFloat) w).value, i);
         else
             table.put(w.nome, i);
     }
