@@ -234,6 +234,7 @@ public class Lexer {
                 }
             } while ((ch) != '"');
             sb.append('"');
+            ch = ' ';
             String s = sb.toString();
             Word w = new Word(s, Tag.LITERAL);
             Id id = (Id) tabelaSimbolos.get(w);

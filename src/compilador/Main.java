@@ -25,7 +25,7 @@ public class Main {
             }
             
             //Lexer l = new Lexer ("Testes/" + args[1]);
-            Lexer l = new Lexer ("Testes/teste6.txt");
+            Lexer l = new Lexer ("Testes/teste4.txt");
             Token t = l.scan();
             while (t != null) {
                 System.out.println(t.toString());
