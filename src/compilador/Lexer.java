@@ -126,6 +126,7 @@ public class Lexer {
 
         // Fim de arquivo
         if (ch == Character.MAX_VALUE) {
+            System.out.println("Análise terminada com sucesso!");
             return null;
         }
 
@@ -300,14 +301,15 @@ public class Lexer {
                     t = new Token("SUB", (int) ch);
                     break;
             }
-            
-            ch = ' ';
-            if(t != null)
+          
+            if(t != null){
+                ch = ' ';
                 return t;
+            }
         }
 
         //Caracteres não especificados
-        System.out.println("Erro na linha " + line + ": símbolo não identificado");
+        System.out.println("Erro na linha " + line + ": símbolo não identificado ("+ ch + ")");
         return null;
     }
 }
