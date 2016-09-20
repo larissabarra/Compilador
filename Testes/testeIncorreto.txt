@@ -1,5 +1,5 @@
 program a, b int { %programa incorreto
-	b = 2.1
+	b = 2.1.1
 	a = 2 * b
 	print[a];
 }

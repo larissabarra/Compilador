@@ -8,12 +8,12 @@ program
  soma = 0.0;
  repeat
 
- print(“Altura:” );
+ print("Altura:" );
  scan (altura);
  soma = soma altura;
  _cont := _cont - 1;
 
  until(_cont = 0)
- print(“Media: ”);
+ print("Media: ");
  print (soma / qtd);
  }
