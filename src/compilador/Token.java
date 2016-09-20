@@ -24,4 +24,18 @@ public class Token {
         return "Token: <" + nome + ">";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        Token newObj;
+        if(obj instanceof Token){
+            newObj = (Token) obj;
+        }
+        else{
+            return false;
+        }
+        return obj instanceof Token && newObj.nome.equals(nome) && newObj.tag == tag; //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+
 }

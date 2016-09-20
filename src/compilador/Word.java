@@ -44,5 +44,19 @@ public class Word extends Token{
     public String getLexeme(){
         return lexeme;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        Word newObj = null;
+        if(obj instanceof Word){
+            newObj = (Word) obj;
+        }
+        else{
+            return false;
+        }
+        return super.equals(obj) && newObj.nome.equals(nome) && newObj.tag == tag && newObj.lexeme.equals(lexeme); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
     
 }

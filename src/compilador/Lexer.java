@@ -245,19 +245,14 @@ public class Lexer {
             } while (Character.isLetterOrDigit(ch));
             String s = sb.toString();
 
-            // Verifica a existência da palavra como palavra chave
-            Word w = new Word(s, Tag.ID);
-            Id id = (Id) tabelaSimbolos.get(w);
-            if (id != null) {
-                return w; //palavra já existe na HashTable
-            }
+            // Verifica a existência da palavra na tabela de símbolos
+            Word w = (Word) tabelaSimbolos.getKey(s);
             
-            // Verifica a existência da palavra como identificador
-            w = new Word(s, "ID", Tag.ID);
-            id = (Id) tabelaSimbolos.get(w);
-            if (id != null) {
+            if(w != null){
                 return w; //palavra já existe na HashTable
             }
+
+            w = new Word(s, "ID", Tag.ID);
             
             tabelaSimbolos.put(w, new Id(s, Tag.ID));
             return w;
