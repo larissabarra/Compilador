@@ -108,7 +108,7 @@ public class Lexer {
                         } else if (ch == '*' && readch('/')) {
                             break;
                         } else if (ch == Character.MAX_VALUE) {
-                            System.out.println("Erro: comentário não foi fechado")
+                            System.out.println("Erro: comentário não foi fechado");
                             return null;
                         }
                     } while (true);
@@ -233,6 +233,7 @@ public class Lexer {
                     return null;
                 }
             } while ((ch) != '"');
+            sb.append('"');
             String s = sb.toString();
             Word w = new Word(s, Tag.LITERAL);
             Id id = (Id) tabelaSimbolos.get(w);

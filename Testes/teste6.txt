@@ -17,5 +17,5 @@ program
  maior := c;
  }
  };
- print(“Maior idade: ”);
+ print("Maior idade: ");
  print(maior);
