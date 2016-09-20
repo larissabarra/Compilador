@@ -108,6 +108,7 @@ public class Lexer {
                         } else if (ch == '*' && readch('/')) {
                             break;
                         } else if (ch == Character.MAX_VALUE) {
+                            System.out.println("Erro: comentário não foi fechado")
                             return null;
                         }
                     } while (true);
@@ -227,7 +228,11 @@ public class Lexer {
             do {
                 sb.append(ch);
                 readch();
-            } while ((ch) != '"' && (ch) != '\n');
+                if(ch == '\n') {
+                    System.out.println("Erro na linha " + line + ": literal mal formatado");
+                    return null;
+                }
+            } while ((ch) != '"');
             String s = sb.toString();
             Word w = new Word(s, Tag.LITERAL);
             Id id = (Id) tabelaSimbolos.get(w);
