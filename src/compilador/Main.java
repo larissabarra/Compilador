@@ -28,11 +28,11 @@ public class Main {
             //Lexer l = new Lexer ("Testes/teste1.txt");
             Token t = l.scan();
             while (t != null) {
-                System.out.println(t.toString());
+                //System.out.println(t.toString());
                 t = l.scan();
             }
             
-            l.imprimeTS();
+            //l.imprimeTS();
         } catch (FileNotFoundException ex) {
             System.out.println("Erro de arquivo");
         } catch (IOException ex) {
