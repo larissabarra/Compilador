@@ -26,6 +26,7 @@ public class Syntax {
     }
     
     public void scan(){
+        advance();
         program();
     }
     
@@ -35,18 +36,22 @@ public class Syntax {
                 eat(Tag.PROGRAM); decl_list(); eat(Tag.AC); stmt_list(); eat(Tag.FC);
                 break;
             default:
-                error();
+                error("Erro na linha " + Lexer.line + ": Programa deve ser iniciado com operador program");
         }
     }
 
     private void decl_list() {
         if (tok == Tag.ID) {
             while (tok != Tag.AC) {
+                if(tok == 0){
+                    error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
+                    break;
+                }
                 decl();
                 eat(Tag.PONTO_VIRGULA);
             }
         } else {
-            error();
+            error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
         }
     }
 
@@ -56,14 +61,22 @@ public class Syntax {
                 ident_list(); type();
                 break;
             default:
-                error();
+                error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
         }
     }
 
     private void ident_list() {
         while (tok == Tag.ID) {
+            if(tok == 0){
+                error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
+                break;
+            }
             eat(Tag.ID);
-            if (tok == Tag.FLOAT || tok == Tag.INT) {
+            // Na gramática do enunciado, o operador ':' não está previsto.
+            // Entretanto, nos exemplos de código o mesmo aparece.
+            // Optamos por incluí-lo.
+            if(tok == Tag.DOIS_PONTOS){
+                eat(Tag.DOIS_PONTOS);
                 break;
             }
             //verifica antes pra não dar o erro se vier tipo esperando vírgula
@@ -80,12 +93,16 @@ public class Syntax {
                 eat(Tag.FLOAT);
                 break;
             default:
-                error();
+                error("Erro na linha " + Lexer.line + ": Tipo de dado não reconhecido.");
         }
     }
 
     private void stmt_list() {
         while (tok != Tag.FC) {
+            if(tok == 0){
+                error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
+                break;
+            }
             stmt();
             eat(Tag.PONTO_VIRGULA);
         }
@@ -108,7 +125,7 @@ public class Syntax {
             case Tag.PRINT:
                 eat(Tag.PRINT); eat(Tag.AP); writable(); eat(Tag.FP);
                 break;
-            default: error();
+            default: error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
         }
     }
     
@@ -130,16 +147,22 @@ public class Syntax {
                 mulop(); factor_a(); termprime();
                 break;
             //Lambda
-            case Tag.ID:
-            case Tag.INT_NUM:
-            case Tag.FLOAT_NUM:
-            case Tag.AP:
-            case Tag.NOT:
+            case Tag.ADD:
             case Tag.SUB:
+            case Tag.OR:
+            case Tag.FP:
+            case Tag.EQ:
+            case Tag.GT:
+            case Tag.GE:
+            case Tag.LT:
+            case Tag.LE:
+            case Tag.DIF:
+            case Tag.AC:
+            case Tag.PONTO_VIRGULA:
                 // Não faz nada porque é lambda
                 break;
             default:
-                error();
+                error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
 
     }
@@ -179,7 +202,7 @@ public class Syntax {
             case Tag.LITERAL:
                 eat(Tag.LITERAL);
                 break;
-            default: error();
+            default: error("Erro na linha " + Lexer.line + ": Constante mal-formulada.");
         }
     }
     
@@ -203,7 +226,7 @@ public class Syntax {
                 // Não faz nada porque é lambda
                 break;
             default:
-                error();
+                error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
     }
     
@@ -218,7 +241,7 @@ public class Syntax {
             case Tag.OR:
                 eat(Tag.OR);
                 break;
-            default: error();
+            default: error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
     }
     
@@ -233,7 +256,7 @@ public class Syntax {
             case Tag.AND:
                 eat(Tag.AND);
                 break;
-            default: error();
+            default: error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
     }
     
@@ -257,7 +280,7 @@ public class Syntax {
             case Tag.DIF:
                 eat(Tag.DIF);
                 break;
-            default: error();
+            default: error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
     }
     
@@ -287,10 +310,11 @@ public class Syntax {
             // Lambda
             case Tag.AC:
             case Tag.PONTO_VIRGULA:
+            case Tag.FP:
                 // Não faz nada porque é lambda
                 break;
             default:
-                error();
+                error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
     }
     
@@ -303,10 +327,10 @@ public class Syntax {
     void advance() {
         try {
             t = lexer.scan();
-            tok = t != null ? lexer.scan().tag : 0;//1;//getToken(); //lê próximo token
+            tok = t != null ? t.tag : 0;//1;//getToken(); //lê próximo token
         } catch (IOException ex) {
             //Logger.getLogger(Syntax.class.getName()).log(Level.SEVERE, null, ex);
-            error();
+            error("Erro na linha " + Lexer.line + ": Token não reconhecido.");
         }
     }
 
@@ -314,11 +338,11 @@ public class Syntax {
         if (tok == t) {
             advance();
         } else {
-            error();
+            error("Erro na linha " + Lexer.line + ": Token esperado (" + t + ") - Token recebido (" + tok + ")");
         }
     }
 
-    private void error() {
-        System.out.println("Deu erro");
+    private void error(String erro) {
+        System.out.println(erro);
     }
 }

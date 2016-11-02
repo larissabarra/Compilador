@@ -25,9 +25,11 @@ public class Lexer {
     private BufferedReader file;
     private Env tabelaSimbolos = new Env(null);
     private boolean espera = false;
-
+    private boolean EOF;    
+    
     //Método Construtor
     public Lexer(String fileName) throws FileNotFoundException {
+        EOF = false;
         try {
             is = new FileInputStream(fileName);
             isr = new InputStreamReader(is);
@@ -108,6 +110,7 @@ public class Lexer {
                         } else if (ch == '*' && readch('/')) {
                             break;
                         } else if (ch == Character.MAX_VALUE) {
+                            EOF = true;
                             System.out.println("Erro: comentário não foi fechado");
                             return null;
                         }
@@ -126,6 +129,7 @@ public class Lexer {
 
         // Fim de arquivo
         if (ch == Character.MAX_VALUE) {
+            EOF = true;
             System.out.println("Análise terminada com sucesso!");
             return null;
         }
@@ -311,5 +315,9 @@ public class Lexer {
         //Caracteres não especificados
         System.out.println("Erro na linha " + line + ": símbolo não identificado ("+ ch + ")");
         return null;
+    }
+    
+    public boolean isEOF(){
+        return EOF;
     }
 }

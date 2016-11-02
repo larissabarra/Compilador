@@ -28,12 +28,13 @@ public class Main {
             Syntax s = new Syntax(l);
             //Lexer l = new Lexer ("Testes/teste1.txt");
             //Token t = l.scan();
-            s.advance();
-            while (s.t != null) {
+            s.scan();
+            //s.advance();
+            //while (s.t != null) {
                 //System.out.println(t.toString());
                 //t = l.scan();
-                s.advance();
-            }
+                //s.advance();
+            //}
             
             //l.imprimeTS();
         } catch (FileNotFoundException ex) {
