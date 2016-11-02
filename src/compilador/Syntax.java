@@ -33,7 +33,11 @@ public class Syntax {
     private void program() {
         switch (tok) {
             case Tag.PROGRAM:
-                eat(Tag.PROGRAM); decl_list(); eat(Tag.AC); stmt_list(); eat(Tag.FC);
+                eat(Tag.PROGRAM);
+                decl_list();
+                eat(Tag.AC);
+                stmt_list();
+                eat(Tag.FC);
                 break;
             default:
                 error("Erro na linha " + Lexer.line + ": Programa deve ser iniciado com operador program");
@@ -41,15 +45,19 @@ public class Syntax {
     }
 
     private void decl_list() {
-        //As linhas abaixo foram comentadas porque assumimos que podem haver programas
-        //em que não é necessário declarar nenhuma variável, portanto, na gramática,
-        //a notação [] foi interpretada como {}.
-        //decl();
-        //eat(Tag.PONTO_VIRGULA);
+        boolean eatOk = false;
+        
+        decl();
+        eat(Tag.PONTO_VIRGULA);
         
         while (tok != Tag.AC) {
             decl();
-            eat(Tag.PONTO_VIRGULA);
+            eatOk = eat(Tag.PONTO_VIRGULA);
+            
+            if(!eatOk){
+                tok = Tag.AC;
+                break;
+            }
         }
     }
 
@@ -64,11 +72,18 @@ public class Syntax {
     }
 
     private void ident_list() {
+        boolean eatOk = false;
+        
         eat(Tag.ID);
         
         while (tok == Tag.VIRGULA) {
-            eat(Tag.VIRGULA);
-            eat(Tag.ID);
+            eatOk = eat(Tag.VIRGULA);
+            eatOk = eatOk && eat(Tag.ID);
+            
+            if(!eatOk){
+                tok = Tag.DOIS_PONTOS;
+                break;
+            }
         }
     }
 
@@ -86,6 +101,8 @@ public class Syntax {
     }
 
     private void stmt_list() {
+        boolean eatOk = false;
+        
         stmt();
         eat(Tag.PONTO_VIRGULA);
         
@@ -97,11 +114,16 @@ public class Syntax {
                 case Tag.SCAN:
                 case Tag.PRINT:
                     stmt();
-                    eat(Tag.PONTO_VIRGULA);
+                    eatOk = eat(Tag.PONTO_VIRGULA);
                     break;
                 default:
                     error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
-            }            
+            }
+
+            if(!eatOk){
+                tok = Tag.FC;
+                break;
+            }
         }
     }
     
@@ -331,11 +353,13 @@ public class Syntax {
         }
     }
 
-    void eat(int t) {
+    boolean eat(int t) {
         if (tok == t) {
             advance();
+            return true;
         } else {
             error("Erro na linha " + Lexer.line + ": Token esperado (" + t + ") - Token recebido (" + tok + ")");
+            return false;
         }
     }
 
