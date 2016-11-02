@@ -1,4 +1,4 @@
-program a, b int { %programa correto
+program a, b : int; { %programa correto
 	b = 2;
 	a = 2 * b;
 	print(a);

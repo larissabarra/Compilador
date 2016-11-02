@@ -31,139 +31,184 @@ public class Syntax {
     }
     
     private void program() {
-        switch (tok) {
-            case Tag.PROGRAM:
-                eat(Tag.PROGRAM);
-                decl_list();
-                eat(Tag.AC);
-                stmt_list();
-                eat(Tag.FC);
-                break;
-            default:
-                error("Erro na linha " + Lexer.line + ": Programa deve ser iniciado com operador program");
-        }
+        eat(Tag.PROGRAM);
+        decl_list();
+        eat(Tag.AC);
+        stmt_list();
+        eat(Tag.FC);
     }
 
     private void decl_list() {
-        boolean eatOk = false;
+        boolean ok = false;
         
         decl();
         eat(Tag.PONTO_VIRGULA);
         
         while (tok != Tag.AC) {
             decl();
-            eatOk = eat(Tag.PONTO_VIRGULA);
+            ok = eat(Tag.PONTO_VIRGULA);
             
-            if(!eatOk){
+            if(!ok){
                 tok = Tag.AC;
                 break;
             }
         }
     }
 
-    private void decl() {
-        switch (tok) {
-            case Tag.ID:
-                ident_list(); eat(Tag.DOIS_PONTOS); type();
-                break;
-            default:
-                error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
-        }
+    private boolean decl() {
+        boolean ok = false;
+        
+        ok = ident_list();
+        ok = ok && eat(Tag.DOIS_PONTOS);
+        ok = ok && type();
+        
+        return ok;
     }
 
-    private void ident_list() {
-        boolean eatOk = false;
+    private boolean ident_list() {
+        boolean ok = false;
         
-        eat(Tag.ID);
+        ok = eat(Tag.ID);
         
         while (tok == Tag.VIRGULA) {
-            eatOk = eat(Tag.VIRGULA);
-            eatOk = eatOk && eat(Tag.ID);
+            ok = ok && eat(Tag.VIRGULA);
+            ok = ok && eat(Tag.ID);
             
-            if(!eatOk){
+            if(!ok){
                 tok = Tag.DOIS_PONTOS;
                 break;
             }
         }
+        
+        return ok;
+
     }
 
-    private void type() {
+    private boolean type() {
+        boolean ok = false;
+        
         switch (tok) {
             case Tag.INT:
-                eat(Tag.INT);
+                ok = eat(Tag.INT);
                 break;
             case Tag.FLOAT:
-                eat(Tag.FLOAT);
+                ok = eat(Tag.FLOAT);
                 break;
             default:
                 error("Erro na linha " + Lexer.line + ": Tipo de dado não reconhecido.");
         }
+        
+        return ok;
     }
 
     private void stmt_list() {
-        boolean eatOk = false;
+        boolean ok = false;
+        boolean existeProximo = true;
         
         stmt();
         eat(Tag.PONTO_VIRGULA);
         
-        while (tok != Tag.FC) {
+        while (tok != Tag.FC && tok != Tag.UNTIL) {
             switch(tok){
                 case Tag.ID:
                 case Tag.IF:
                 case Tag.REPEAT:
                 case Tag.SCAN:
                 case Tag.PRINT:
-                    stmt();
-                    eatOk = eat(Tag.PONTO_VIRGULA);
+                    ok = stmt();
+                    if(!ok){
+                        existeProximo = proximoComando();
+                        if(existeProximo){
+                            ok = eat(Tag.PONTO_VIRGULA);
+                        }
+                    }
+                    else{
+                        ok = ok && eat(Tag.PONTO_VIRGULA);
+                    }
                     break;
                 default:
                     error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
             }
 
-            if(!eatOk){
+            if(!existeProximo){
                 tok = Tag.FC;
                 break;
             }
         }
+        
     }
     
-    private void stmt() {
+    private boolean stmt() {
+        boolean ok = false;
+        
         switch(tok){
             case Tag.ID:
-                eat(Tag.ID); eat(Tag.ATRIB); simple_expr();
+                ok = eat(Tag.ID); 
+                ok = ok && eat(Tag.ATRIB); 
+                ok = ok && simple_expr();
                 break;
             case Tag.IF:
-                eat(Tag.IF); condition(); eat(Tag.AC); stmt_list(); eat(Tag.FC); if_stmt();
+                ok = eat(Tag.IF); 
+                ok = ok && condition(); 
+                ok = ok && eat(Tag.AC); 
+                stmt_list(); 
+                ok = ok && eat(Tag.FC); 
+                ok = ok && if_stmt();
                 break;
             case Tag.REPEAT:
-                eat(Tag.REPEAT); stmt_list(); eat(Tag.UNTIL); condition();
+                ok = eat(Tag.REPEAT); 
+                stmt_list(); 
+                ok = ok && eat(Tag.UNTIL); 
+                ok = ok && condition();
                 break;
             case Tag.SCAN:
-                eat(Tag.SCAN); eat(Tag.AP); eat(Tag.ID); eat(Tag.FP);
+                ok = eat(Tag.SCAN); 
+                ok = ok && eat(Tag.AP); 
+                ok = ok && eat(Tag.ID); 
+                ok = ok && eat(Tag.FP);
                 break;
             case Tag.PRINT:
-                eat(Tag.PRINT); eat(Tag.AP); writable(); eat(Tag.FP);
+                ok = eat(Tag.PRINT); 
+                ok = ok && eat(Tag.AP); 
+                ok = ok && writable(); 
+                ok = ok && eat(Tag.FP);
                 break;
             default: error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
         }
+        
+        return ok;
     }
     
-    private void simple_expr() {
+    private boolean simple_expr() {
+        boolean ok = false;
+
         //TODO: tratar se for lambda
         // simple-expr não gera lambda
-        term(); simple_exprprime();
+        ok = term();
+        ok = ok && simple_exprprime();
+        
+        return ok;
     }
     
-    private void term() {
-        factor_a(); termprime();
+    private boolean term() {
+        boolean ok = false;
+        
+        ok = factor_a(); 
+        ok = ok && termprime();
+        
+        return ok;
     }
     
-    private void termprime() {
+    private boolean termprime() {
+        boolean ok = false;
+        
         switch(tok){
             case Tag.MULT:
             case Tag.DIV:
             case Tag.AND:
-                mulop(); factor_a(); termprime();
+                ok = mulop();
+                ok = ok && factor_a();
+                ok = ok && termprime();
                 break;
             //Lambda
             case Tag.ADD:
@@ -179,58 +224,81 @@ public class Syntax {
             case Tag.AC:
             case Tag.PONTO_VIRGULA:
                 // Não faz nada porque é lambda
-                break;
+                return true;
             default:
                 error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
+        
+        return ok;
 
     }
     
-    private void factor_a() {
+    private boolean factor_a() {
+        boolean ok =  false;
+        
         switch(tok) {
             case Tag.NOT:
-                eat(Tag.NOT); factor();
+                ok = eat(Tag.NOT); 
+                ok = ok && factor();
                 break;
             case Tag.SUB:
-                eat(Tag.SUB); factor();
+                ok = eat(Tag.SUB); 
+                ok = ok && factor();
                 break;
-            default: factor();
+            default: 
+                ok = factor();
         }
+        
+        return ok;
     }
     
-    private void factor() {
+    private boolean factor() {
+        boolean ok = false;
         switch(tok) {
             case Tag.ID:
-                eat(Tag.ID);
+                ok = eat(Tag.ID);
                 break;
             case Tag.AP:
-                eat(Tag.AP); expression(); eat(Tag.FP);
+                ok = eat(Tag.AP);
+                ok = ok && expression();
+                ok = ok && eat(Tag.FP);
                 break;
-            default: constant();
+            default: 
+                ok = constant();
         }
+        
+        return ok;
     }
     
-    private void constant() {
+    private boolean constant() {
+        boolean ok = false;
+        
         switch(tok) {
             case Tag.INT_NUM:
-                eat(Tag.INT_NUM);
+                ok = eat(Tag.INT_NUM);
                 break;
             case Tag.FLOAT_NUM:
-                eat(Tag.FLOAT_NUM);
+                ok = eat(Tag.FLOAT_NUM);
                 break;
             case Tag.LITERAL:
-                eat(Tag.LITERAL);
+                ok = eat(Tag.LITERAL);
                 break;
             default: error("Erro na linha " + Lexer.line + ": Constante mal-formulada.");
         }
+        
+        return ok;
     }
     
-    private void simple_exprprime() {
+    private boolean simple_exprprime() {
+        boolean ok = false;
+        
         switch(tok){
             case Tag.ADD:
             case Tag.SUB:
             case Tag.OR:
-                addop(); term(); simple_exprprime();
+                ok = addop();
+                ok = ok && term();
+                ok = ok && simple_exprprime();
                 break;
             // Lambda
             case Tag.FP:
@@ -243,80 +311,109 @@ public class Syntax {
             case Tag.AC:
             case Tag.PONTO_VIRGULA:
                 // Não faz nada porque é lambda
-                break;
+                return true;
             default:
                 error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
+        
+        return ok;
     }
     
-    private void addop() {
+    private boolean addop() {
+        boolean ok = false;
+        
         switch(tok) {
             case Tag.ADD:
-                eat(Tag.ADD);
+                ok = eat(Tag.ADD);
                 break;
             case Tag.SUB:
-                eat(Tag.SUB);
+                ok = eat(Tag.SUB);
                 break;
             case Tag.OR:
-                eat(Tag.OR);
+                ok = eat(Tag.OR);
                 break;
             default: error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
+        
+        return ok;
     }
     
-    private void mulop() {
+    private boolean mulop() {
+        boolean ok = false;
+        
         switch(tok) {
             case Tag.MULT:
-                eat(Tag.MULT);
+                ok = eat(Tag.MULT);
                 break;
             case Tag.DIV:
-                eat(Tag.DIV);
+                ok = eat(Tag.DIV);
                 break;
             case Tag.AND:
-                eat(Tag.AND);
+                ok = eat(Tag.AND);
                 break;
             default: error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
+        
+        return ok;
     }
     
-    private void relop() {
+    private boolean relop() {
+        boolean ok = false;
+        
         switch(tok) {
             case Tag.EQ:
-                eat(Tag.EQ);
+                ok = eat(Tag.EQ);
                 break;
             case Tag.GE:
-                eat(Tag.GE);
+                ok = eat(Tag.GE);
                 break;
             case Tag.GT:
-                eat(Tag.GT);
+                ok = eat(Tag.GT);
                 break;
             case Tag.LE:
-                eat(Tag.LE);
+                ok = eat(Tag.LE);
                 break;
             case Tag.LT:
-                eat(Tag.LT);
+                ok = eat(Tag.LT);
                 break;
             case Tag.DIF:
-                eat(Tag.DIF);
+                ok = eat(Tag.DIF);
                 break;
             default: error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
+        
+        return ok;
     }
     
-    private void writable() {
-        simple_expr();
+    private boolean writable() {
+        boolean ok = false;
+        
+        ok = simple_expr();
+        
+        return ok;
     }
     
     //coloquei esse método inútil só pra ficar mais legível mesmo
-    private void condition() {
-        expression();
+    private boolean condition() {
+        boolean ok = false;
+        
+        ok = expression();
+        
+        return ok;
     }
     
-    private void expression() {
-        simple_expr(); expressionprime();
+    private boolean expression() {
+        boolean ok = false;
+        
+        ok = simple_expr(); 
+        ok = ok && expressionprime();
+        
+        return ok;
     }
     
-    private void expressionprime() {
+    private boolean expressionprime() {
+        boolean ok = false;
+        
         switch(tok){
             case Tag.EQ:
             case Tag.GT:
@@ -324,23 +421,34 @@ public class Syntax {
             case Tag.LT:
             case Tag.LE:
             case Tag.DIF:
-                relop(); simple_expr(); expressionprime();
+                ok = relop(); 
+                ok = ok && simple_expr(); 
+                ok = ok && expressionprime();
                 break;
             // Lambda
             case Tag.AC:
             case Tag.PONTO_VIRGULA:
             case Tag.FP:
                 // Não faz nada porque é lambda
-                break;
+                return true;
             default:
                 error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
+        
+        return ok;
     }
     
-    private void if_stmt() {
+    private boolean if_stmt() {
+        boolean ok = true;
+        
         if(tok == Tag.ELSE) {
-            eat(Tag.ELSE); eat(Tag.AC); stmt_list(); eat(Tag.FC);
+            ok = eat(Tag.ELSE);
+            ok = ok && eat(Tag.AC);
+            stmt_list();
+            ok = ok && eat(Tag.FC);
         }
+        
+        return ok;
     }
     
     void advance() {
@@ -365,5 +473,17 @@ public class Syntax {
 
     private void error(String erro) {
         System.out.println(erro);
+    }
+    
+    private boolean proximoComando(){
+        boolean existeProximo = false;
+        
+        while(tok != Tag.PONTO_VIRGULA && tok != 0){
+            advance();
+        }
+        
+        existeProximo = tok == Tag.PONTO_VIRGULA;
+        
+        return existeProximo;
     }
 }
