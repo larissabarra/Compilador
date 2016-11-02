@@ -456,6 +456,7 @@ public class Syntax {
             tok = t != null ? t.tag : 0;//1;//getToken(); //lê próximo token
             if(tok == 0 && !lexer.isEOF()){
                 error("[LEXICO] Erro na linha " + Lexer.line + ": Token não reconhecido.");
+                //t = lexer.scan();
                 return false;
             }
             return true;

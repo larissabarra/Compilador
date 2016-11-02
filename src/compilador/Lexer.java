@@ -314,6 +314,7 @@ public class Lexer {
 
         //Caracteres não especificados
         System.out.println("Erro na linha " + line + ": símbolo não identificado ("+ ch + ")");
+        readch();
         return null;
     }
     
