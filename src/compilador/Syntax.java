@@ -44,13 +44,12 @@ public class Syntax {
         decl();
         eat(Tag.PONTO_VIRGULA);
         
-        while (tok != Tag.AC) {
+        while (tok != Tag.AC && !lexer.isEOF()) {
             decl();
             ok = eat(Tag.PONTO_VIRGULA);
             
             if(!ok){
-                tok = Tag.AC;
-                break;
+                advance();
             }
         }
     }
@@ -108,7 +107,7 @@ public class Syntax {
         stmt();
         eat(Tag.PONTO_VIRGULA);
         
-        while (tok != Tag.FC && tok != Tag.UNTIL) {
+        while (tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()) {
             switch(tok){
                 case Tag.ID:
                 case Tag.IF:
@@ -451,20 +450,25 @@ public class Syntax {
         return ok;
     }
     
-    void advance() {
+    boolean advance() {
         try {
             t = lexer.scan();
             tok = t != null ? t.tag : 0;//1;//getToken(); //lê próximo token
+            if(tok == 0 && !lexer.isEOF()){
+                error("[LEXICO] Erro na linha " + Lexer.line + ": Token não reconhecido.");
+                return false;
+            }
+            return true;
         } catch (IOException ex) {
             //Logger.getLogger(Syntax.class.getName()).log(Level.SEVERE, null, ex);
             error("Erro na linha " + Lexer.line + ": Token não reconhecido.");
+            return false;
         }
     }
 
     boolean eat(int t) {
         if (tok == t) {
-            advance();
-            return true;
+            return advance();
         } else {
             error("Erro na linha " + Lexer.line + ": Token esperado (" + t + ") - Token recebido (" + tok + ")");
             return false;
@@ -478,7 +482,7 @@ public class Syntax {
     private boolean proximoComando(){
         boolean existeProximo = false;
         
-        while(tok != Tag.PONTO_VIRGULA && tok != 0){
+        while(tok != Tag.PONTO_VIRGULA && !lexer.isEOF()){
             advance();
         }
         
