@@ -5,18 +5,30 @@
  */
 package compilador;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Larissa
  */
 public class Syntax {
 
+    private Lexer lexer;
+    
+    int tok = 0;
+    Token t;
+           
+    public Syntax(Lexer lexer){
+        this.lexer = lexer;
+        t = null;
+    }
+    
     public void scan(){
         program();
     }
     
-    int tok = 0;
-
     private void program() {
         switch (tok) {
             case Tag.PROGRAM:
@@ -289,7 +301,13 @@ public class Syntax {
     }
     
     void advance() {
-        tok = 1;//getToken(); //lê próximo token
+        try {
+            t = lexer.scan();
+            tok = t != null ? lexer.scan().tag : 0;//1;//getToken(); //lê próximo token
+        } catch (IOException ex) {
+            //Logger.getLogger(Syntax.class.getName()).log(Level.SEVERE, null, ex);
+            error();
+        }
     }
 
     void eat(int t) {

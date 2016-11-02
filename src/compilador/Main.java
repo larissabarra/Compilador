@@ -25,12 +25,14 @@ public class Main {
             }
             
             Lexer l = new Lexer ("Testes/" + args[args.length-1]);
-            //Syntax s = new Syntax();
+            Syntax s = new Syntax(l);
             //Lexer l = new Lexer ("Testes/teste1.txt");
-            Token t = l.scan();
-            while (t != null) {
+            //Token t = l.scan();
+            s.advance();
+            while (s.t != null) {
                 //System.out.println(t.toString());
-                t = l.scan();
+                //t = l.scan();
+                s.advance();
             }
             
             //l.imprimeTS();
