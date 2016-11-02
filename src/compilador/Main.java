@@ -25,6 +25,7 @@ public class Main {
             }
             
             Lexer l = new Lexer ("Testes/" + args[args.length-1]);
+            //Syntax s = new Syntax();
             //Lexer l = new Lexer ("Testes/teste1.txt");
             Token t = l.scan();
             while (t != null) {

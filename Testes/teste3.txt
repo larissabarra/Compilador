@@ -1,19 +1,19 @@
 /* Programa de Teste
-Calculo de idade
+Calculo de idade*/
 program
- _cont : int;
- media, altura, soma_ : float;
+ cont : int;
+ media, altura, soma : float;
  {
- _cont = 5;
+ cont = 5;
  soma = 0.0;
  repeat
 
  print("Altura:" );
  scan (altura);
  soma = soma altura;
- _cont := _cont - 1;
+ cont := cont - 1;
 
- until(_cont = 0)
+ until(cont = 0)
  print("Media: ");
  print (soma / qtd);
  }

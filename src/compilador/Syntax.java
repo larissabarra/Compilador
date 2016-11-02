@@ -11,6 +11,10 @@ package compilador;
  */
 public class Syntax {
 
+    public void scan(){
+        program();
+    }
+    
     int tok = 0;
 
     private void program() {
@@ -98,6 +102,7 @@ public class Syntax {
     
     private void simple_expr() {
         //TODO: tratar se for lambda
+        // simple-expr não gera lambda
         term(); simple_exprprime();
     }
     
@@ -106,8 +111,25 @@ public class Syntax {
     }
     
     private void termprime() {
-        //TODO: tratar se for lambda
-        mulop(); factor_a(); termprime();
+        switch(tok){
+            case Tag.MULT:
+            case Tag.DIV:
+            case Tag.AND:
+                mulop(); factor_a(); termprime();
+                break;
+            //Lambda
+            case Tag.ID:
+            case Tag.INT_NUM:
+            case Tag.FLOAT_NUM:
+            case Tag.AP:
+            case Tag.NOT:
+            case Tag.SUB:
+                // Não faz nada porque é lambda
+                break;
+            default:
+                error();
+        }
+
     }
     
     private void factor_a() {
@@ -150,8 +172,27 @@ public class Syntax {
     }
     
     private void simple_exprprime() {
-        //TODO: tratar se for lambda
-        addop(); term(); simple_exprprime();
+        switch(tok){
+            case Tag.ADD:
+            case Tag.SUB:
+            case Tag.OR:
+                addop(); term(); simple_exprprime();
+                break;
+            // Lambda
+            case Tag.FP:
+            case Tag.EQ:
+            case Tag.GT:
+            case Tag.GE:
+            case Tag.LT:
+            case Tag.LE:
+            case Tag.DIF:
+            case Tag.AC:
+            case Tag.PONTO_VIRGULA:
+                // Não faz nada porque é lambda
+                break;
+            default:
+                error();
+        }
     }
     
     private void addop() {
@@ -222,8 +263,23 @@ public class Syntax {
     }
     
     private void expressionprime() {
-        //TODO: tratar se for lambda
-        relop(); simple_expr(); expressionprime();
+        switch(tok){
+            case Tag.EQ:
+            case Tag.GT:
+            case Tag.GE:
+            case Tag.LT:
+            case Tag.LE:
+            case Tag.DIF:
+                relop(); simple_expr(); expressionprime();
+                break;
+            // Lambda
+            case Tag.AC:
+            case Tag.PONTO_VIRGULA:
+                // Não faz nada porque é lambda
+                break;
+            default:
+                error();
+        }
     }
     
     private void if_stmt() {
