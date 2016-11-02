@@ -41,24 +41,22 @@ public class Syntax {
     }
 
     private void decl_list() {
-        if (tok == Tag.ID) {
-            while (tok != Tag.AC) {
-                if(tok == 0){
-                    error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
-                    break;
-                }
-                decl();
-                eat(Tag.PONTO_VIRGULA);
-            }
-        } else {
-            error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
+        //As linhas abaixo foram comentadas porque assumimos que podem haver programas
+        //em que não é necessário declarar nenhuma variável, portanto, na gramática,
+        //a notação [] foi interpretada como {}.
+        //decl();
+        //eat(Tag.PONTO_VIRGULA);
+        
+        while (tok != Tag.AC) {
+            decl();
+            eat(Tag.PONTO_VIRGULA);
         }
     }
 
     private void decl() {
         switch (tok) {
             case Tag.ID:
-                ident_list(); type();
+                ident_list(); eat(Tag.DOIS_PONTOS); type();
                 break;
             default:
                 error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
@@ -66,21 +64,11 @@ public class Syntax {
     }
 
     private void ident_list() {
-        while (tok == Tag.ID) {
-            if(tok == 0){
-                error("Erro na linha " + Lexer.line + ": Erro na declaração de variável.");
-                break;
-            }
-            eat(Tag.ID);
-            // Na gramática do enunciado, o operador ':' não está previsto.
-            // Entretanto, nos exemplos de código o mesmo aparece.
-            // Optamos por incluí-lo.
-            if(tok == Tag.DOIS_PONTOS){
-                eat(Tag.DOIS_PONTOS);
-                break;
-            }
-            //verifica antes pra não dar o erro se vier tipo esperando vírgula
+        eat(Tag.ID);
+        
+        while (tok == Tag.VIRGULA) {
             eat(Tag.VIRGULA);
+            eat(Tag.ID);
         }
     }
 
@@ -98,13 +86,22 @@ public class Syntax {
     }
 
     private void stmt_list() {
+        stmt();
+        eat(Tag.PONTO_VIRGULA);
+        
         while (tok != Tag.FC) {
-            if(tok == 0){
-                error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
-                break;
-            }
-            stmt();
-            eat(Tag.PONTO_VIRGULA);
+            switch(tok){
+                case Tag.ID:
+                case Tag.IF:
+                case Tag.REPEAT:
+                case Tag.SCAN:
+                case Tag.PRINT:
+                    stmt();
+                    eat(Tag.PONTO_VIRGULA);
+                    break;
+                default:
+                    error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
+            }            
         }
     }
     

@@ -130,7 +130,7 @@ public class Lexer {
         // Fim de arquivo
         if (ch == Character.MAX_VALUE) {
             EOF = true;
-            System.out.println("Análise terminada com sucesso!");
+            //System.out.println("Análise terminada com sucesso!");
             return null;
         }
 
