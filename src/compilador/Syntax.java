@@ -32,24 +32,34 @@ public class Syntax {
 
     private void program() {
         eat(Tag.PROGRAM);
+
         decl_list();
-        eat(Tag.AC);
+        
+        if (!lexer.isEOF()) {
+            eat(Tag.AC);
+        }
+        else{
+            error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
+        }
+        
         stmt_list();
-        eat(Tag.FC);
+        
+        if (!lexer.isEOF()) {
+            eat(Tag.FC);
+        }
+        else{
+            error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
+        }
     }
 
     private void decl_list() {
         boolean ok = true;
         boolean okAtual = false;
 
-        ok = decl();
-        okAtual = eat(Tag.PONTO_VIRGULA);
-
-        while (tok != Tag.AC && !lexer.isEOF()) {
+        do{
+            ok = true;
+            
             okAtual = decl();
-            ok = ok && okAtual;
-
-            okAtual = eat(Tag.PONTO_VIRGULA);
             ok = ok && okAtual;
 
             if (!ok) {
@@ -57,7 +67,16 @@ public class Syntax {
                     advance();
                 }
             }
-        }
+            
+            if (!lexer.isEOF()) {
+                okAtual = eat(Tag.PONTO_VIRGULA);
+                ok = ok && okAtual;
+            } else {
+                error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
+                break;
+            }            
+            
+        } while (tok != Tag.AC && !lexer.isEOF());
     }
 
     private boolean decl() {
@@ -71,7 +90,7 @@ public class Syntax {
         ok = ok && okAtual;
 
         if (!ok) {
-            error("Erro na linha " + Lexer.line + ": Declaração mal-formulada.");
+            error("Erro na linha " + Lexer.line + ": Erro de sintaxe na declaração de variáveis.");
         }
 
         return ok;
@@ -126,33 +145,66 @@ public class Syntax {
         boolean ok = true;
         boolean okAtual = false;
 
-        okAtual = stmt();
-        ok = ok && okAtual;
-        okAtual = eat(Tag.PONTO_VIRGULA);
-        ok = ok && okAtual;
-
-        while (tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()) {
+        do{
+            ok = true;
             switch (tok) {
                 case Tag.ID:
+                    okAtual = stmt();
+                    ok = ok && okAtual;
+
+                    if (!ok) {
+                        if (!lexer.isEOF()) {
+                            error("Erro na linha " + Lexer.line + ": Erro de sintaxe no comando de atribuição.");
+                        }
+                    }
+
+                    break;
                 case Tag.IF:
+                    okAtual = stmt();
+                    ok = ok && okAtual;
+
+                    break;
                 case Tag.REPEAT:
+                    okAtual = stmt();
+                    ok = ok && okAtual;
+
+                    break;
                 case Tag.SCAN:
+                    okAtual = stmt();
+                    ok = ok && okAtual;
+
+                    if (!ok) {
+                        if (!lexer.isEOF()) {
+                            error("Erro na linha " + Lexer.line + ": Erro de sintaxe no comando scan.");
+                        }
+                    }
+
+                    break;
                 case Tag.PRINT:
                     okAtual = stmt();
                     ok = ok && okAtual;
 
-                    okAtual = eat(Tag.PONTO_VIRGULA);
-                    ok = ok && okAtual;
-                    
-                    // TODO: Tratamento de Erro
-                    /*if (!ok) {
-                        error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
-                    }*/
+                    if (!ok) {
+                        if (!lexer.isEOF()) {
+                            error("Erro na linha " + Lexer.line + ": Erro de sintaxe no comando print.");
+                        }
+                    }
+
                     break;
                 default:
+                    ok = false;
                 //error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
             }
-        }
+
+            if (!lexer.isEOF()) {
+                okAtual = eat(Tag.PONTO_VIRGULA);
+                ok = ok && okAtual;
+            } else {
+                error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
+                break;
+            }
+
+        } while (tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF());
 
     }
 
@@ -179,10 +231,17 @@ public class Syntax {
                 okAtual = condition();
                 ok = ok && okAtual;
 
+                if (!ok) {
+                    if (!lexer.isEOF()) {
+                        error("Erro na linha " + Lexer.line + ": Erro de sintaxe no bloco if.");
+                    }
+                }
+                
                 okAtual = eat(Tag.AC);
                 ok = ok && okAtual;
 
                 stmt_list();
+
                 okAtual = eat(Tag.FC);
                 ok = ok && okAtual;
 
@@ -200,6 +259,12 @@ public class Syntax {
 
                 okAtual = condition();
                 ok = ok && okAtual;
+
+                if (!ok) {
+                    if (!lexer.isEOF()) {
+                        error("Erro na linha " + Lexer.line + ": Erro de sintaxe no bloco repeat.");
+                    }
+                }
 
                 break;
             case Tag.SCAN:
@@ -357,6 +422,12 @@ public class Syntax {
                 okAtual = expression();
                 ok = ok && okAtual;
 
+                if(!ok){
+                    while(tok != Tag.FP && !lexer.isEOF()){
+                        advance();
+                    }
+                }
+                
                 okAtual = eat(Tag.FP);
                 ok = ok && okAtual;
                 break;
@@ -542,7 +613,7 @@ public class Syntax {
         boolean ok = true;
         boolean okAtual = false;
 
-        ok = simple_expr();
+        okAtual = simple_expr();
         ok = ok && okAtual;
 
         okAtual = expressionprime();
@@ -626,7 +697,7 @@ public class Syntax {
         if (tok == t) {
             return advance();
         } else {
-            error("Erro na linha " + Lexer.line + ": Token esperado (" + t + ") - Token recebido (" + tok + ")");
+            //error("Erro na linha " + Lexer.line + ": Token esperado (" + t + ") - Token recebido (" + tok + ")");
             return false;
         }
     }
@@ -635,15 +706,4 @@ public class Syntax {
         System.out.println(erro);
     }
 
-    private boolean proximoComando() {
-        boolean existeProximo = false;
-
-        while (tok != Tag.PONTO_VIRGULA && !lexer.isEOF()) {
-            advance();
-        }
-
-        existeProximo = (tok == Tag.PONTO_VIRGULA);
-
-        return existeProximo;
-    }
 }

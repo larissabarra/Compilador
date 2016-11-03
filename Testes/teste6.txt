@@ -5,17 +5,17 @@ program
  scan(b);
  scan(c;
 
- maior = 0;
- if ( a>b && a>c ){
- maior := a;
+ @maior = 0;
+ if ( a>b & a>c ){
+ 	maior := a;
  }
  else{
- if (b>c){
- maior := b;
- }
- else{
- maior := c;
- }
+ 	if (b>c){
+ 		maior := b;
+ 	}
+ 	else{
+ 		maior := c;
+ 	};
  };
  print("Maior idade: ");
  print(maior);
