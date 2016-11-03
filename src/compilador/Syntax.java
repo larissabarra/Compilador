@@ -31,24 +31,36 @@ public class Syntax {
     }
 
     private void program() {
-        eat(Tag.PROGRAM);
-
+        boolean ok = true;
+        boolean okAtual = false;
+        
+        okAtual = eat(Tag.PROGRAM);
+        ok = ok && okAtual;
+        
+        if(!ok){
+            error("Erro na linha " + Lexer.line + ": Token esperado (" + Tag.PROGRAM + ") - Token recebido (" + tok + ")");
+        }
+        
         decl_list();
         
         if (!lexer.isEOF()) {
-            eat(Tag.AC);
+            okAtual = eat(Tag.AC);
+            ok = ok && okAtual;
         }
         else{
             error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
+            ok = false;
         }
         
         stmt_list();
         
         if (!lexer.isEOF()) {
-            eat(Tag.FC);
+            okAtual = eat(Tag.FC);
+            ok = ok && okAtual;
         }
         else{
             error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
+            ok = false;
         }
     }
 
@@ -63,7 +75,7 @@ public class Syntax {
             ok = ok && okAtual;
 
             if (!ok) {
-                while (tok != Tag.PONTO_VIRGULA && !lexer.isEOF()) {
+                while (tok != Tag.PONTO_VIRGULA && tok != Tag.AC && !lexer.isEOF()) {
                     advance();
                 }
             }
@@ -192,7 +204,7 @@ public class Syntax {
 
                     break;
                 case Tag.ERROR:
-                    while(tok != Tag.PONTO_VIRGULA && !lexer.isEOF()){
+                    while(tok != Tag.PONTO_VIRGULA && tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()){
                         advance();
                     }
                     ok = false;
@@ -302,7 +314,7 @@ public class Syntax {
 
                 break;
             case Tag.ERROR:
-                while(tok != Tag.PONTO_VIRGULA && !lexer.isEOF()){
+                while(tok != Tag.PONTO_VIRGULA && tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()){
                     advance();
                 }
                 ok = false;
@@ -312,7 +324,7 @@ public class Syntax {
         }
 
         if (!ok) {
-            while (tok != Tag.PONTO_VIRGULA && !lexer.isEOF()) {
+            while (tok != Tag.PONTO_VIRGULA && tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()) {
                 advance();
             }
         }
