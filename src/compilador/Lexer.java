@@ -112,7 +112,7 @@ public class Lexer {
                         } else if (ch == Character.MAX_VALUE) {
                             EOF = true;
                             System.out.println("Erro: comentário não foi fechado");
-                            return null;
+                            return new Token("ERROR", Tag.ERROR);
                         }
                     } while (true);
                 } else {
@@ -208,11 +208,11 @@ public class Lexer {
                     } else {
                         //ERRO: achei mais de 1 ponto
                         System.out.println("Erro na linha " + line + ": float mal formatado");
-                        return null;
+                        return new Token("ERROR", Tag.ERROR);
                     }
                 } else if(Character.isAlphabetic(ch)) { //se for uma letra vai ser tentativa de id
                     System.out.println("Erro na linha " + line + ": identificador mal formatado");
-                    return null;
+                    return new Token("ERROR", Tag.ERROR);
                 }
             } while (Character.isDigit(ch));
             if (isFloat) {
@@ -235,7 +235,7 @@ public class Lexer {
                 readch();
                 if(ch == '\n') {
                     System.out.println("Erro na linha " + line + ": literal mal formatado");
-                    return null;
+                    return new Token("ERROR", Tag.ERROR);
                 }
             } while ((ch) != '"');
             sb.append('"');
@@ -314,8 +314,7 @@ public class Lexer {
 
         //Caracteres não especificados
         System.out.println("Erro na linha " + line + ": símbolo não identificado ("+ ch + ")");
-        readch();
-        return null;
+        return new Token("ERROR", Tag.ERROR);
     }
     
     public boolean isEOF(){

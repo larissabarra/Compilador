@@ -73,6 +73,9 @@ public class Tag {
         LITERAL = 281,
         ID = 282,
         TRUE = 284,
-        FALSE = 285;
+        FALSE = 285,
+        
+        // Token de verificação de erro
             
+        ERROR = 500;
 }
