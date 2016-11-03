@@ -74,7 +74,11 @@ public class Syntax {
             } else {
                 error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
                 break;
-            }            
+            }
+
+            if (!ok) {
+                error("Erro na linha " + Lexer.line + ": Erro de sintaxe na declaração de variáveis.");
+            }
             
         } while (tok != Tag.AC && !lexer.isEOF());
     }
@@ -88,10 +92,6 @@ public class Syntax {
 
         okAtual = type();
         ok = ok && okAtual;
-
-        if (!ok) {
-            error("Erro na linha " + Lexer.line + ": Erro de sintaxe na declaração de variáveis.");
-        }
 
         return ok;
     }
@@ -190,6 +190,12 @@ public class Syntax {
                         }
                     }
 
+                    break;
+                case Tag.ERROR:
+                    while(tok != Tag.PONTO_VIRGULA && !lexer.isEOF()){
+                        advance();
+                    }
+                    ok = false;
                     break;
                 default:
                     ok = false;
@@ -294,6 +300,12 @@ public class Syntax {
                 okAtual = eat(Tag.FP);
                 ok = ok && okAtual;
 
+                break;
+            case Tag.ERROR:
+                while(tok != Tag.PONTO_VIRGULA && !lexer.isEOF()){
+                    advance();
+                }
+                ok = false;
                 break;
             default:
                 error("Erro na linha " + Lexer.line + ": Comando mal-formulado.");
@@ -679,10 +691,9 @@ public class Syntax {
     boolean advance() {
         try {
             t = lexer.scan();
-            tok = t != null ? t.tag : 0;//1;//getToken(); //lê próximo token
-            if (tok == 0 && !lexer.isEOF()) {
-                error("[LEXICO] Erro na linha " + Lexer.line + ": Token não reconhecido.");
-                //t = lexer.scan();
+            tok = t != null && t.tag != 500 ? t.tag : 500;//1;//getToken(); //lê próximo token
+            if (tok == 500 && !lexer.isEOF()) {
+                //error("Erro na linha " + Lexer.line + ": Token não reconhecido.");//t = lexer.scan();
                 return false;
             }
             return true;

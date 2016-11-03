@@ -1,17 +1,17 @@
 program
- a, b, c, maior int;
+ a, b, #c, maior@ int;
  {
  scan(a);
  scan(b);
  scan(c;
 
  @maior = 0;
- if ( a>b & a>c ){
+ if ( a>b ^ a>c ){
  	maior := a;
  }
  else{
  	if (b>c){
- 		maior := b;
+ 		maior @ := b;
  	}
  	else{
  		maior := c;
