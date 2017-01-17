@@ -10,7 +10,7 @@ package compilador;
  * @author Larissa
  */
 public class Id {
-    private String name; //valor (nome do identificador ou valor da constante)
+    private Object name; //valor (nome do identificador ou valor da constante)
     private int type; //vem da tag
     private String bloco; //vai ter?
 
@@ -18,16 +18,16 @@ public class Id {
         this.name = name;
     }
     
-    public Id(String name, int type) {
+    public Id(Object name, int type) {
         this.name = name;
         this.type = type;
     }
     
-    public String getName() {
+    public Object getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(Object name) {
         this.name = name;
     }
 

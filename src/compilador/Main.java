@@ -28,13 +28,11 @@ public class Main {
             //Lexer l = new Lexer ("Testes/teste4.txt");
             Syntax s = new Syntax(l);
             //Token t = l.scan();
-            s.scan();
-            //s.advance();
-            //while (s.t != null) {
-                //System.out.println(t.toString());
-                //t = l.scan();
-                //s.advance();
-            //}
+            boolean syntaxOk = s.scan();
+            //se não tiver erro de sintaxe, faz o analisador semântico
+            if(syntaxOk) {
+                Semantic se = new Semantic(l);
+            }
             
             //l.imprimeTS();
         } catch (FileNotFoundException ex) {
