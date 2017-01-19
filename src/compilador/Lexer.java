@@ -220,14 +220,14 @@ public class Lexer {
             } while (Character.isDigit(ch));
             if (isFloat) {
                 val += (resto / Math.pow(10, (("" + resto).length())));
-                tabelaSimbolos.put(new NumFloat(val), new Id(val, Tag.FLOAT_NUM));
+                tabelaSimbolos.put(new NumFloat(val), new Id(""+val, Tag.FLOAT_NUM));
                 return new NumFloat(val);
             } else {
                 if (isZero) {
-                    tabelaSimbolos.put(new NumInt(0), new Id(0, Tag.INT_NUM));
+                    tabelaSimbolos.put(new NumInt(0), new Id("0", Tag.INT_NUM));
                     return new NumInt(0); //só retorno 0 se for int, porque o float pode começar com 0
                 }
-                tabelaSimbolos.put(new NumInt(value), new Id(value, Tag.INT_NUM));
+                tabelaSimbolos.put(new NumInt(value), new Id(""+ value, Tag.INT_NUM));
                 return new NumInt(value);
             }
         }  //Literal

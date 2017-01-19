@@ -6,6 +6,8 @@
 package compilador;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -23,14 +25,14 @@ public class Syntax {
         t = null;
     }
 
-    public boolean scan() {
+    public void scan() {
         advance();
-        return program();
+        program();
     }
 
-    private boolean program() {
+    private void program() {
         boolean ok = true;
-        boolean okAtual;
+        boolean okAtual = false;
         
         okAtual = eat(Tag.PROGRAM);
         ok = ok && okAtual;
@@ -44,7 +46,8 @@ public class Syntax {
         if (!lexer.isEOF()) {
             okAtual = eat(Tag.AC);
             ok = ok && okAtual;
-        } else {
+        }
+        else{
             error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
             ok = false;
         }
@@ -54,11 +57,11 @@ public class Syntax {
         if (!lexer.isEOF()) {
             okAtual = eat(Tag.FC);
             ok = ok && okAtual;
-        } else {
+        }
+        else{
             error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
             ok = false;
         }
-        return ok;
     }
 
     private void decl_list() {
@@ -429,7 +432,7 @@ public class Syntax {
 
     private boolean factor() {
         boolean ok = true;
-        boolean okAtual;
+        boolean okAtual = false;
 
         switch (tok) {
             case Tag.ID:
@@ -462,7 +465,7 @@ public class Syntax {
 
     private boolean constant() {
         boolean ok = true;
-        boolean okAtual;
+        boolean okAtual = false;
 
         switch (tok) {
             case Tag.INT_NUM:
@@ -725,4 +728,5 @@ public class Syntax {
     private void error(String erro) {
         System.out.println(erro);
     }
+
 }

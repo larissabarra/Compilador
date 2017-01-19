@@ -35,4 +35,7 @@ public class Token {
         }
         return obj instanceof Token && newObj.nome.equals(nome) && newObj.tag == tag; //To change body of generated methods, choose Tools | Templates.
     }
+    
+    
+
 }
