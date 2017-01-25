@@ -23,13 +23,14 @@ public class Lexer {
     private InputStream is = null; 
     private InputStreamReader isr = null;
     private BufferedReader file;
-    private Env tabelaSimbolos = new Env(null);
     private boolean espera = false;
+    private Env tabelaSimbolos;
     private boolean EOF;    
     
     //Método Construtor
-    public Lexer(String fileName) throws FileNotFoundException {
+    public Lexer(String fileName, Env tabelaSimbolos) throws FileNotFoundException {
         EOF = false;
+        this.tabelaSimbolos = tabelaSimbolos;
         try {
             is = new FileInputStream(fileName);
             isr = new InputStreamReader(is);

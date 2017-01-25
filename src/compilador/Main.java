@@ -19,14 +19,15 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            if(args.length == 0){
+            if(args.length != 0){
                 System.out.println("Arquivo não localizado no diretório Testes.");
                 System.exit(1);
             }
+     Env tabelaSimbolos = new Env(null);
             
-            Lexer l = new Lexer ("Testes/" + args[args.length-1]);
-            //Lexer l = new Lexer ("Testes/teste4.txt");
-            Syntax s = new Syntax(l);
+            //Lexer l = new Lexer ("Testes/" + args[args.length-1]);
+            Lexer l = new Lexer ("Testes/testeCorreto.txt", tabelaSimbolos);
+            Syntax s = new Syntax(l, tabelaSimbolos);
             //Token t = l.scan();
             s.scan();
             //s.advance();

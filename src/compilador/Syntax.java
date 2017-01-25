@@ -6,8 +6,8 @@
 package compilador;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -16,13 +16,17 @@ import java.util.logging.Logger;
 public class Syntax {
 
     private Lexer lexer;
+    private Map<String, Integer> declaracoes;
+    private Env tabelaSimbolos;
 
     int tok = 0;
     Token t;
 
-    public Syntax(Lexer lexer) {
+    public Syntax(Lexer lexer, Env tabelaSimbolos) {
         this.lexer = lexer;
         t = null;
+        this.tabelaSimbolos = tabelaSimbolos;
+        declaracoes = new HashMap<String, Integer>();
     }
 
     public void scan() {
@@ -33,32 +37,30 @@ public class Syntax {
     private void program() {
         boolean ok = true;
         boolean okAtual = false;
-        
+
         okAtual = eat(Tag.PROGRAM);
         ok = ok && okAtual;
-        
-        if(!ok){
+
+        if (!ok) {
             error("Erro na linha " + Lexer.line + ": Token esperado (" + Tag.PROGRAM + ") - Token recebido (" + tok + ")");
         }
-        
+
         decl_list();
-        
+        System.out.println(declaracoes.toString());
         if (!lexer.isEOF()) {
             okAtual = eat(Tag.AC);
             ok = ok && okAtual;
-        }
-        else{
+        } else {
             error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
             ok = false;
         }
-        
+
         stmt_list();
-        
+
         if (!lexer.isEOF()) {
             okAtual = eat(Tag.FC);
             ok = ok && okAtual;
-        }
-        else{
+        } else {
             error("Erro na linha " + Lexer.line + ": Erro de sintaxe. Fim de arquivo encontrado antes do esperado.");
             ok = false;
         }
@@ -68,9 +70,9 @@ public class Syntax {
         boolean ok = true;
         boolean okAtual = false;
 
-        do{
+        do {
             ok = true;
-            
+
             okAtual = decl();
             ok = ok && okAtual;
 
@@ -79,7 +81,7 @@ public class Syntax {
                     advance();
                 }
             }
-            
+
             if (!lexer.isEOF()) {
                 okAtual = eat(Tag.PONTO_VIRGULA);
                 ok = ok && okAtual;
@@ -91,7 +93,7 @@ public class Syntax {
             if (!ok) {
                 error("Erro na linha " + Lexer.line + ": Erro de sintaxe na declaração de variáveis.");
             }
-            
+
         } while (tok != Tag.AC && !lexer.isEOF());
     }
 
@@ -102,6 +104,9 @@ public class Syntax {
         okAtual = ident_list();
         ok = ok && okAtual;
 
+        okAtual = eat(Tag.DOIS_PONTOS);
+        ok = ok && okAtual;
+        
         okAtual = type();
         ok = ok && okAtual;
 
@@ -112,12 +117,18 @@ public class Syntax {
         boolean ok = true;
         boolean okAtual = false;
 
+        if (t != null && t.tag == Tag.ID) {
+            declaracoes.put(tabelaSimbolos.get(t).getName(), null);
+        }
         okAtual = eat(Tag.ID);
         ok = ok && okAtual;
 
         while (tok == Tag.VIRGULA) {
             okAtual = eat(Tag.VIRGULA);
             ok = ok && okAtual;
+            if (t != null && t.tag == Tag.ID) {
+                declaracoes.put(tabelaSimbolos.get(t).getName(), null);
+            }
 
             okAtual = eat(Tag.ID);
             ok = ok && okAtual;
@@ -134,14 +145,22 @@ public class Syntax {
     private boolean type() {
         boolean ok = true;
         boolean okAtual = false;
-
         switch (tok) {
             case Tag.INT:
+                for(String dec : declaracoes.keySet()) {
+                    if(declaracoes.get(dec) == null) {
+                        declaracoes.put(dec, Tag.INT);
+                    }
+                }
                 okAtual = eat(Tag.INT);
                 ok = ok && okAtual;
-
                 break;
             case Tag.FLOAT:
+                for(String dec : declaracoes.keySet()) {
+                    if(declaracoes.get(dec) == null) {
+                        declaracoes.put(dec, Tag.FLOAT);
+                    }
+                }
                 okAtual = eat(Tag.FLOAT);
                 ok = ok && okAtual;
                 break;
@@ -149,7 +168,6 @@ public class Syntax {
                 ok = false;
             //error("Erro na linha " + Lexer.line + ": Tipo de dado não reconhecido.");
         }
-
         return ok;
     }
 
@@ -157,7 +175,7 @@ public class Syntax {
         boolean ok = true;
         boolean okAtual = false;
 
-        do{
+        do {
             ok = true;
             switch (tok) {
                 case Tag.ID:
@@ -204,7 +222,7 @@ public class Syntax {
 
                     break;
                 case Tag.ERROR:
-                    while(tok != Tag.PONTO_VIRGULA && tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()){
+                    while (tok != Tag.PONTO_VIRGULA && tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()) {
                         advance();
                     }
                     ok = false;
@@ -254,7 +272,7 @@ public class Syntax {
                         error("Erro na linha " + Lexer.line + ": Erro de sintaxe no bloco if.");
                     }
                 }
-                
+
                 okAtual = eat(Tag.AC);
                 ok = ok && okAtual;
 
@@ -314,7 +332,7 @@ public class Syntax {
 
                 break;
             case Tag.ERROR:
-                while(tok != Tag.PONTO_VIRGULA && tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()){
+                while (tok != Tag.PONTO_VIRGULA && tok != Tag.FC && tok != Tag.UNTIL && !lexer.isEOF()) {
                     advance();
                 }
                 ok = false;
@@ -436,6 +454,11 @@ public class Syntax {
 
         switch (tok) {
             case Tag.ID:
+                System.out.println("aqui" +declaracoes.toString());
+                if(declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                    ok = false;
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável não declarada.");
+                }
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
                 break;
@@ -446,12 +469,12 @@ public class Syntax {
                 okAtual = expression();
                 ok = ok && okAtual;
 
-                if(!ok){
-                    while(tok != Tag.FP && !lexer.isEOF()){
+                if (!ok) {
+                    while (tok != Tag.FP && !lexer.isEOF()) {
                         advance();
                     }
                 }
-                
+
                 okAtual = eat(Tag.FP);
                 ok = ok && okAtual;
                 break;
