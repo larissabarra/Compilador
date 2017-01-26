@@ -46,7 +46,7 @@ public class Syntax {
         }
 
         decl_list();
-        System.out.println(declaracoes.toString());
+
         if (!lexer.isEOF()) {
             okAtual = eat(Tag.AC);
             ok = ok && okAtual;
@@ -106,7 +106,7 @@ public class Syntax {
 
         okAtual = eat(Tag.DOIS_PONTOS);
         ok = ok && okAtual;
-        
+
         okAtual = type();
         ok = ok && okAtual;
 
@@ -147,8 +147,8 @@ public class Syntax {
         boolean okAtual = false;
         switch (tok) {
             case Tag.INT:
-                for(String dec : declaracoes.keySet()) {
-                    if(declaracoes.get(dec) == null) {
+                for (String dec : declaracoes.keySet()) {
+                    if (declaracoes.get(dec) == null) {
                         declaracoes.put(dec, Tag.INT);
                     }
                 }
@@ -156,8 +156,8 @@ public class Syntax {
                 ok = ok && okAtual;
                 break;
             case Tag.FLOAT:
-                for(String dec : declaracoes.keySet()) {
-                    if(declaracoes.get(dec) == null) {
+                for (String dec : declaracoes.keySet()) {
+                    if (declaracoes.get(dec) == null) {
                         declaracoes.put(dec, Tag.FLOAT);
                     }
                 }
@@ -179,6 +179,11 @@ public class Syntax {
             ok = true;
             switch (tok) {
                 case Tag.ID:
+                    if ((tabelaSimbolos.get(t)) != null) {
+                        if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                        }
+                    }
                     okAtual = stmt();
                     ok = ok && okAtual;
 
@@ -454,10 +459,11 @@ public class Syntax {
 
         switch (tok) {
             case Tag.ID:
-                System.out.println("aqui" +declaracoes.toString());
-                if(declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
-                    ok = false;
-                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável não declarada.");
+                if ((tabelaSimbolos.get(t)) != null) {
+                    if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                        ok = false;
+                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                    }
                 }
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
