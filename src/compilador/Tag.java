@@ -74,7 +74,8 @@ public class Tag {
         ID = 282,
         TRUE = 284,
         FALSE = 285,
-        
+        BOOLEAN = 286,
+            
         // Token de verificação de erro
             
         ERROR = 500,

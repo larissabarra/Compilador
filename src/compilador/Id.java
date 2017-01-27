@@ -13,7 +13,8 @@ public class Id {
     private String name; //valor (nome do identificador ou valor da constante)
     private int type; //vem da tag
     private String bloco; //vai ter?
-
+    private Object value;
+    
     public Id(String name) {
         this.name = name;
     }
@@ -45,6 +46,14 @@ public class Id {
 
     public void setBloco(String bloco) {
         this.bloco = bloco;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
     }
     
     public String toString(){

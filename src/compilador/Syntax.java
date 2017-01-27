@@ -99,6 +99,8 @@ public class Syntax {
     }
 
     private boolean decl() {
+        declaracoes.clear();
+
         boolean ok = true;
         boolean okAtual = false;
 
@@ -151,6 +153,8 @@ public class Syntax {
                 for (String dec : declaracoes.keySet()) {
                     if (declaracoes.get(dec) == null) {
                         declaracoes.put(dec, Tag.INT);
+                        Token key = tabelaSimbolos.getKey(dec);
+                        tabelaSimbolos.get(key).setType(Tag.INT_NUM);
                     }
                 }
                 okAtual = eat(Tag.INT);
@@ -160,6 +164,8 @@ public class Syntax {
                 for (String dec : declaracoes.keySet()) {
                     if (declaracoes.get(dec) == null) {
                         declaracoes.put(dec, Tag.FLOAT);
+                        Token key = tabelaSimbolos.getKey(dec);
+                        tabelaSimbolos.get(key).setType(Tag.FLOAT_NUM);
                     }
                 }
                 okAtual = eat(Tag.FLOAT);
@@ -180,13 +186,15 @@ public class Syntax {
             ok = true;
             switch (tok) {
                 case Tag.ID:
-                    if ((tabelaSimbolos.get(t)) != null) {
-                        if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
-                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
-                        }
-                    } else {
-                        tipoAtual = declaracoes.get(tabelaSimbolos.get(t).getName());
-                    }
+//                    if ((tabelaSimbolos.get(t)) != null) {
+//                        /*if (tabelaSimbolos.get(t).getName() == null) {
+//                           
+//                        }*/
+//                        tipoAtual = tabelaSimbolos.get(t).getType();
+//                    } else {
+//                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+//                        
+//                   }
                     okAtual = stmt();
                     ok = ok && okAtual;
 
@@ -254,33 +262,52 @@ public class Syntax {
     }
 
     private boolean stmt() {
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
         switch (tok) {
             case Tag.ID:
+                Word atrib = new Word(((Word) (t)).getLexeme(), t.nome, t.tag);
                 if ((tabelaSimbolos.get(t)) != null) {
-                    if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
-                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
-                    } else {
-                        tipoEsperado = tipoAtual;
-                    }
-                } 
+                    /*if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                        
+                    } else {*/
+                    tipoEsperado = tabelaSimbolos.get(t).getType();
+                    /*if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getType()) != tipoEsperado) {
+                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
+                        }*/
+                    //}
+                } else {
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                }
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
 
                 okAtual = eat(Tag.ATRIB);
                 ok = ok && okAtual;
 
-                okAtual = simple_expr();
+                resAtual = simple_expr();
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
+                if (tipoEsperado != resAtual.getType()) {
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
+                    ok = false;
+                } else {
+                    Token key = tabelaSimbolos.getKey(atrib.getLexeme());
+                    tabelaSimbolos.get(key).setValue(resAtual.getValue());
+                }
 
                 break;
             case Tag.IF:
                 okAtual = eat(Tag.IF);
                 ok = ok && okAtual;
 
-                okAtual = condition();
+                resAtual = condition();
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
 
                 if (!ok) {
@@ -309,7 +336,9 @@ public class Syntax {
                 okAtual = eat(Tag.UNTIL);
                 ok = ok && okAtual;
 
-                okAtual = condition();
+                resAtual = condition();
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
 
                 if (!ok) {
@@ -341,7 +370,7 @@ public class Syntax {
                 okAtual = eat(Tag.AP);
                 ok = ok && okAtual;
 
-                okAtual = writable();
+                resAtual = writable();
                 ok = ok && okAtual;
 
                 okAtual = eat(Tag.FP);
@@ -367,51 +396,104 @@ public class Syntax {
         return ok;
     }
 
-    private boolean simple_expr() {
+    private Result simple_expr() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
         //TODO: tratar se for lambda
         // simple-expr não gera lambda
-        okAtual = term();
+        resAtual = term();
+        okAtual = resAtual.isValid();
+
         ok = ok && okAtual;
 
-        okAtual = simple_exprprime();
+        resAtual = simple_exprprime(resAtual);
+        okAtual = resAtual.isValid();
         ok = ok && okAtual;
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
-    private boolean term() {
+    private Result term() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
-        okAtual = factor_a();
+        resAtual = factor_a();
+        okAtual = resAtual.isValid();
+
         ok = ok && okAtual;
 
-        okAtual = termprime();
+        resAtual = termprime(resAtual);
+        okAtual = resAtual.isValid();
         ok = ok && okAtual;
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
-    private boolean termprime() {
+    private Result termprime(Result resAntes) {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
         switch (tok) {
             case Tag.MULT:
             case Tag.DIV:
+                boolean divisao = tok == Tag.DIV;
+                okAtual = mulop();
+                ok = ok && okAtual;
+
+                resAtual = factor_a();
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
+
+                if (resAntes.getType() == resAtual.getType()) {
+                    if (divisao){
+                        resAtual.setType(Tag.FLOAT_NUM);
+                    }
+                    okAtual = resAtual.isValid();
+                } else {
+                    //TODO: erro de tipo
+                }
+
+                ok = ok && okAtual;
+
+                resAtual = termprime(resAtual);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
+                break;
             case Tag.AND:
                 okAtual = mulop();
                 ok = ok && okAtual;
 
-                okAtual = factor_a();
+                resAtual = factor_a();
+                okAtual = resAtual.isValid() && resAtual.getType() == Tag.BOOLEAN;
+
                 ok = ok && okAtual;
 
-                okAtual = termprime();
+                if (resAntes.getType() == resAtual.getType()) {
+                    okAtual = resAtual.isValid();
+                } else {
+                    //TODO: erro de tipo
+                }
+
                 ok = ok && okAtual;
 
+                resAtual = termprime(resAtual);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
                 break;
             //Lambda
             case Tag.ADD:
@@ -427,17 +509,22 @@ public class Syntax {
             case Tag.AC:
             case Tag.PONTO_VIRGULA:
                 // Não faz nada porque é lambda
-                return true;
+                resAtual = resAntes;
+                break;
             default:
                 ok = false;
             //error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
 
-        return ok;
+        res = resAtual;
+        return res;
 
     }
 
-    private boolean factor_a() {
+    private Result factor_a() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
@@ -446,40 +533,71 @@ public class Syntax {
                 okAtual = eat(Tag.NOT);
                 ok = ok && okAtual;
 
-                okAtual = factor();
+                resAtual = factor();
+                if(resAtual.getType() == Tag.BOOLEAN){
+                    okAtual = resAtual.isValid();
+                }
+                else{
+                    //TODO: Erro de Tipo
+                    okAtual = false;
+                }
+                
                 ok = ok && okAtual;
+
+                //resAtual.setValue(!((boolean) resAtual.getValue()));
 
                 break;
             case Tag.SUB:
                 okAtual = eat(Tag.SUB);
                 ok = ok && okAtual;
 
-                okAtual = factor();
+                resAtual = factor();
+
+                if(resAtual.getType() == Tag.INT_NUM || resAtual.getType() == Tag.FLOAT_NUM ) {
+                    //resAtual.setValue(-((float) resAtual.getValue()));
+                }
+                else{
+                    //TODO: Erro de Tipo
+                }
+
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
                 break;
             default:
-                okAtual = factor();
+                resAtual = factor();
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
         }
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
-    private boolean factor() {
+    private Result factor() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
         switch (tok) {
             case Tag.ID:
                 if ((tabelaSimbolos.get(t)) != null) {
-                    if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
-                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
-                    } else {
-                        if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getName()) != tipoEsperado) {
+                    //if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                    Id idAtual = tabelaSimbolos.get(t);
+                    resAtual = new Result(idAtual.getValue(), idAtual.getType(), true);
+
+                } else {
+                    /*if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getName()) != tipoEsperado) {
                             error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
-                        }
-                    }
-                } 
+                        }*/
+                    //    }
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                    resAtual = new Result(null, Tag.ERROR, false);
+
+                }
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
                 break;
@@ -487,7 +605,9 @@ public class Syntax {
                 okAtual = eat(Tag.AP);
                 ok = ok && okAtual;
 
-                okAtual = expression();
+                resAtual = expression();
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
 
                 if (!ok) {
@@ -500,53 +620,130 @@ public class Syntax {
                 ok = ok && okAtual;
                 break;
             default:
-                okAtual = constant();
+                resAtual = constant();
+                okAtual = resAtual.isValid();
                 ok = ok && okAtual;
         }
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
-    private boolean constant() {
+    private Result constant() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
         switch (tok) {
             case Tag.INT_NUM:
-                okAtual = eat(Tag.INT_NUM);
+                NumInt ci = ((NumInt) (t));
+                resAtual = new Result(ci.value, ci.tag, true);
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
+
+                okAtual = eat(Tag.INT_NUM);
+
+                ok = ok && okAtual;
+
                 break;
             case Tag.FLOAT_NUM:
+                NumFloat cf = ((NumFloat) (t));
+                resAtual = new Result(cf.value, cf.tag, true);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
+
                 okAtual = eat(Tag.FLOAT_NUM);
                 ok = ok && okAtual;
                 break;
             case Tag.LITERAL:
+                Word cw = ((Word) (t));
+                resAtual = new Result(cw.nome, cw.tag, true);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
+
                 okAtual = eat(Tag.LITERAL);
                 ok = ok && okAtual;
                 break;
             default:
+                resAtual = new Result(null, Tag.ERROR, false);
+
                 ok = false;
             //error("Erro na linha " + Lexer.line + ": Constante mal-formulada.");
         }
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
-    private boolean simple_exprprime() {
+    private Result simple_exprprime(Result resAntes) {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
         switch (tok) {
             case Tag.ADD:
+                okAtual = addop();
+                ok = ok && okAtual;
+
+                resAtual = term();
+                okAtual = resAtual.isValid();
+                ok = ok && okAtual;
+
+                if (resAntes.getType() == resAtual.getType()) {
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        resAtual = new Result((int) resAntes.getValue() + (int) resAtual.getValue(), resAtual.getType(), true);
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        resAtual = new Result((float) resAntes.getValue() + (float) resAtual.getValue(), resAtual.getType(), true);
+                    }
+                }
+
+                resAtual = simple_exprprime(resAtual);
+                okAtual = resAtual.isValid();
+                ok = ok && okAtual;
+                break;
             case Tag.SUB:
+                okAtual = addop();
+                ok = ok && okAtual;
+
+                resAtual = term();
+                okAtual = resAtual.isValid();
+                ok = ok && okAtual;
+
+                if (resAntes.getType() == resAtual.getType()) {
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        resAtual = new Result((int) resAntes.getValue() - (int) resAtual.getValue(), resAtual.getType(), true);
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        resAtual = new Result((float) resAntes.getValue() - (float) resAtual.getValue(), resAtual.getType(), true);
+                    }
+                }
+
+                resAtual = simple_exprprime(resAtual);
+                okAtual = resAtual.isValid();
+                ok = ok && okAtual;
+                break;
             case Tag.OR:
                 okAtual = addop();
                 ok = ok && okAtual;
 
-                okAtual = term();
+                resAtual = term();
+                okAtual = resAtual.isValid();
                 ok = ok && okAtual;
 
-                okAtual = simple_exprprime();
+                if (resAntes.getType() == resAtual.getType()) {
+                    resAtual = new Result((boolean) resAntes.getValue() || (boolean) resAtual.getValue(), resAtual.getType(), true);
+                }
+
+                resAtual = simple_exprprime(resAtual);
+                okAtual = resAtual.isValid();
                 ok = ok && okAtual;
                 break;
             // Lambda
@@ -560,13 +757,17 @@ public class Syntax {
             case Tag.AC:
             case Tag.PONTO_VIRGULA:
                 // Não faz nada porque é lambda
-                return true;
+                resAtual = resAntes;
+                break;
             default:
                 ok = false;
+                resAtual = new Result(null, Tag.ANY, false);
+
             //error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
     private boolean addop() {
@@ -656,58 +857,229 @@ public class Syntax {
         return ok;
     }
 
-    private boolean writable() {
+    private Result writable() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
-        okAtual = simple_expr();
+        resAtual = simple_expr();
+        okAtual = resAtual.isValid();
+
         ok = ok && okAtual;
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
     //coloquei esse método inútil só pra ficar mais legível mesmo
-    private boolean condition() {
+    private Result condition() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
-        okAtual = expression();
+        resAtual = expression();
+        okAtual = resAtual.isValid();
         ok = ok && okAtual;
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
-    private boolean expression() {
+    private Result expression() {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
-        okAtual = simple_expr();
+        resAtual = simple_expr();
+        okAtual = resAtual.isValid();
+
         ok = ok && okAtual;
 
-        okAtual = expressionprime();
+        resAtual = expressionprime(resAtual);
+        okAtual = resAtual.isValid();
+
         ok = ok && okAtual;
 
-        return ok;
+        res = resAtual;
+
+        return res;
     }
 
-    private boolean expressionprime() {
+    private Result expressionprime(Result resAntes) {
+        Result res = null;
+        Result resAtual = null;
+
         boolean ok = true;
         boolean okAtual = false;
 
         switch (tok) {
             case Tag.EQ:
+                okAtual = relop();
+                ok = ok && okAtual;
+
+                resAtual = simple_expr();
+                okAtual = resAtual.isValid();
+
+                if (resAtual.getType() == resAtual.getType()) {
+                    boolean isTrue = false;
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        isTrue = (int) resAntes.getValue() == (int) resAtual.getValue();
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        isTrue = (float) resAntes.getValue() == (float) resAtual.getValue();
+                    }
+                    resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
+                    okAtual = resAtual.isValid();
+                } else {
+                    //erro de tipo
+                }
+
+                ok = ok && okAtual;
+
+                resAtual = expressionprime(resAtual);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
             case Tag.GT:
+                okAtual = relop();
+                ok = ok && okAtual;
+
+                resAtual = simple_expr();
+                okAtual = resAtual.isValid();
+
+                if (resAtual.getType() == resAtual.getType()) {
+                    boolean isTrue = false;
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        isTrue = (int) resAntes.getValue() > (int) resAtual.getValue();
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        isTrue = (float) resAntes.getValue() > (float) resAtual.getValue();
+                    }
+                    resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
+                    okAtual = resAtual.isValid();
+                } else {
+                    //erro de tipo
+                }
+
+                ok = ok && okAtual;
+
+                resAtual = expressionprime(resAtual);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
             case Tag.GE:
+                okAtual = relop();
+                ok = ok && okAtual;
+
+                resAtual = simple_expr();
+                okAtual = resAtual.isValid();
+
+                if (resAtual.getType() == resAtual.getType()) {
+                    boolean isTrue = false;
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        isTrue = (int) resAntes.getValue() >= (int) resAtual.getValue();
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        isTrue = (float) resAntes.getValue() >= (float) resAtual.getValue();
+                    }
+                    resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
+                    okAtual = resAtual.isValid();
+                } else {
+                    //erro de tipo
+                }
+
+                ok = ok && okAtual;
+
+                resAtual = expressionprime(resAtual);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
             case Tag.LT:
+                okAtual = relop();
+                ok = ok && okAtual;
+
+                resAtual = simple_expr();
+                okAtual = resAtual.isValid();
+
+                if (resAtual.getType() == resAtual.getType()) {
+                    boolean isTrue = false;
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        isTrue = (int) resAntes.getValue() < (int) resAtual.getValue();
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        isTrue = (float) resAntes.getValue() < (float) resAtual.getValue();
+                    }
+                    resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
+                    okAtual = resAtual.isValid();
+                } else {
+                    //erro de tipo
+                }
+
+                ok = ok && okAtual;
+
+                resAtual = expressionprime(resAtual);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
             case Tag.LE:
+                okAtual = relop();
+                ok = ok && okAtual;
+
+                resAtual = simple_expr();
+                okAtual = resAtual.isValid();
+
+                if (resAtual.getType() == resAtual.getType()) {
+                    boolean isTrue = false;
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        isTrue = (int) resAntes.getValue() <= (int) resAtual.getValue();
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        isTrue = (float) resAntes.getValue() <= (float) resAtual.getValue();
+                    }
+                    resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
+                    okAtual = resAtual.isValid();
+                } else {
+                    //erro de tipo
+                }
+
+                ok = ok && okAtual;
+
+                resAtual = expressionprime(resAtual);
+                okAtual = resAtual.isValid();
+
+                ok = ok && okAtual;
             case Tag.DIF:
                 okAtual = relop();
                 ok = ok && okAtual;
 
-                okAtual = simple_expr();
+                resAtual = simple_expr();
+                okAtual = resAtual.isValid();
+
+                if (resAtual.getType() == resAtual.getType()) {
+                    boolean isTrue = false;
+                    if (resAtual.getType() == Tag.INT_NUM) {
+                        isTrue = (int) resAntes.getValue() != (int) resAtual.getValue();
+                    }
+                    if (resAtual.getType() == Tag.FLOAT_NUM) {
+                        isTrue = (float) resAntes.getValue() != (float) resAtual.getValue();
+                    }
+                    resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
+                    okAtual = resAtual.isValid();
+                } else {
+                    //erro de tipo
+                }
+
                 ok = ok && okAtual;
 
-                okAtual = expressionprime();
+                resAtual = expressionprime(resAtual);
+                okAtual = resAtual.isValid();
+
                 ok = ok && okAtual;
                 break;
             // Lambda
@@ -715,13 +1087,16 @@ public class Syntax {
             case Tag.PONTO_VIRGULA:
             case Tag.FP:
                 // Não faz nada porque é lambda
-                return true;
+                resAtual = resAntes;
+                break;
             default:
                 ok = false;
+                resAtual = new Result(null, Tag.ANY, false);
             //error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
 
-        return ok;
+        res = resAtual;
+        return res;
     }
 
     private boolean if_stmt() {
