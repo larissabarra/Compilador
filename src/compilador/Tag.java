@@ -77,5 +77,8 @@ public class Tag {
         
         // Token de verificação de erro
             
-        ERROR = 500;
+        ERROR = 500,
+            
+        //Token de tipo livre
+        ANY = 600;
 }

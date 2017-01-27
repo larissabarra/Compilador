@@ -26,7 +26,7 @@ public class Main {
      Env tabelaSimbolos = new Env(null);
             
             //Lexer l = new Lexer ("Testes/" + args[args.length-1]);
-            Lexer l = new Lexer ("Testes/testeCorreto.txt", tabelaSimbolos);
+            Lexer l = new Lexer ("Testes/teste1.txt", tabelaSimbolos);
             Syntax s = new Syntax(l, tabelaSimbolos);
             //Token t = l.scan();
             s.scan();

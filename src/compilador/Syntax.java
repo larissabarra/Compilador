@@ -18,6 +18,7 @@ public class Syntax {
     private Lexer lexer;
     private Map<String, Integer> declaracoes;
     private Env tabelaSimbolos;
+    private int tipoAtual, tipoEsperado;
 
     int tok = 0;
     Token t;
@@ -183,6 +184,8 @@ public class Syntax {
                         if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
                             error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
                         }
+                    } else {
+                        tipoAtual = declaracoes.get(tabelaSimbolos.get(t).getName());
                     }
                     okAtual = stmt();
                     ok = ok && okAtual;
@@ -205,6 +208,7 @@ public class Syntax {
 
                     break;
                 case Tag.SCAN:
+                    tipoEsperado = Tag.ANY;
                     okAtual = stmt();
                     ok = ok && okAtual;
 
@@ -255,6 +259,13 @@ public class Syntax {
 
         switch (tok) {
             case Tag.ID:
+                if ((tabelaSimbolos.get(t)) != null) {
+                    if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                    } else {
+                        tipoEsperado = tipoAtual;
+                    }
+                } 
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
 
@@ -323,6 +334,7 @@ public class Syntax {
 
                 break;
             case Tag.PRINT:
+                tipoEsperado = Tag.ANY;
                 okAtual = eat(Tag.PRINT);
                 ok = ok && okAtual;
 
@@ -461,10 +473,13 @@ public class Syntax {
             case Tag.ID:
                 if ((tabelaSimbolos.get(t)) != null) {
                     if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
-                        ok = false;
                         error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                    } else {
+                        if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getName()) != tipoEsperado) {
+                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
+                        }
                     }
-                }
+                } 
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
                 break;
