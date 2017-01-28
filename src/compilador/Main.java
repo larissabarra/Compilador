@@ -19,24 +19,24 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            if(args.length != 0){
+            if (args.length != 0) {
                 System.out.println("Arquivo não localizado no diretório Testes.");
                 System.exit(1);
             }
-     Env tabelaSimbolos = new Env(null);
-            
+            Env tabelaSimbolos = new Env(null);
+
             //Lexer l = new Lexer ("Testes/" + args[args.length-1]);
-            Lexer l = new Lexer ("Testes/teste1.txt", tabelaSimbolos);
+            Lexer l = new Lexer("Testes/teste1.txt", tabelaSimbolos);
             Syntax s = new Syntax(l, tabelaSimbolos);
             //Token t = l.scan();
             s.scan();
             //s.advance();
             //while (s.t != null) {
-                //System.out.println(t.toString());
-                //t = l.scan();
-                //s.advance();
+            //System.out.println(t.toString());
+            //t = l.scan();
+            //s.advance();
             //}
-            
+
             //l.imprimeTS();
         } catch (FileNotFoundException ex) {
             System.out.println("Erro de arquivo");

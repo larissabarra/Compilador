@@ -273,11 +273,11 @@ public class Syntax {
                 if ((tabelaSimbolos.get(t)) != null) {
                     /*if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
                         
-                    } else {*/
+                     } else {*/
                     tipoEsperado = tabelaSimbolos.get(t).getType();
                     /*if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getType()) != tipoEsperado) {
-                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
-                        }*/
+                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
+                     }*/
                     //}
                 } else {
                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
@@ -294,7 +294,6 @@ public class Syntax {
                 ok = ok && okAtual;
                 if (tipoEsperado != resAtual.getType()) {
                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
-                    ok = false;
                 } else {
                     Token key = tabelaSimbolos.getKey(atrib.getLexeme());
                     tabelaSimbolos.get(key).setValue(resAtual.getValue());
@@ -458,7 +457,7 @@ public class Syntax {
                 ok = ok && okAtual;
 
                 if (resAntes.getType() == resAtual.getType()) {
-                    if (divisao){
+                    if (divisao) {
                         resAtual.setType(Tag.FLOAT_NUM);
                     }
                     okAtual = resAtual.isValid();
@@ -534,18 +533,16 @@ public class Syntax {
                 ok = ok && okAtual;
 
                 resAtual = factor();
-                if(resAtual.getType() == Tag.BOOLEAN){
+                if (resAtual.getType() == Tag.BOOLEAN) {
                     okAtual = resAtual.isValid();
-                }
-                else{
+                } else {
                     //TODO: Erro de Tipo
                     okAtual = false;
                 }
-                
+
                 ok = ok && okAtual;
 
                 //resAtual.setValue(!((boolean) resAtual.getValue()));
-
                 break;
             case Tag.SUB:
                 okAtual = eat(Tag.SUB);
@@ -553,10 +550,9 @@ public class Syntax {
 
                 resAtual = factor();
 
-                if(resAtual.getType() == Tag.INT_NUM || resAtual.getType() == Tag.FLOAT_NUM ) {
+                if (resAtual.getType() == Tag.INT_NUM || resAtual.getType() == Tag.FLOAT_NUM) {
                     //resAtual.setValue(-((float) resAtual.getValue()));
-                }
-                else{
+                } else {
                     //TODO: Erro de Tipo
                 }
 
@@ -591,12 +587,11 @@ public class Syntax {
 
                 } else {
                     /*if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getName()) != tipoEsperado) {
-                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
-                        }*/
+                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
+                     }*/
                     //    }
                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
                     resAtual = new Result(null, Tag.ERROR, false);
-
                 }
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
