@@ -47,7 +47,7 @@ public class Syntax {
         }
 
         decl_list();
-        
+
         if (!lexer.isEOF()) {
             okAtual = eat(Tag.AC);
             ok = ok && okAtual;
@@ -129,7 +129,11 @@ public class Syntax {
         boolean okAtual = false;
 
         if (t != null && t.tag == Tag.ID) {
-            declaracoes.put(tabelaSimbolos.get(t).getName(), null);
+            if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                declaracoes.put(tabelaSimbolos.get(t).getName(), null);
+            } else {
+                error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " já declarada.");
+            }
         }
         okAtual = eat(Tag.ID);
         ok = ok && okAtual;
@@ -138,7 +142,11 @@ public class Syntax {
             okAtual = eat(Tag.VIRGULA);
             ok = ok && okAtual;
             if (t != null && t.tag == Tag.ID) {
-                declaracoes.put(tabelaSimbolos.get(t).getName(), null);
+                if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                    declaracoes.put(tabelaSimbolos.get(t).getName(), null);
+                } else {
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " já declarada.");
+                }
             }
 
             okAtual = eat(Tag.ID);
