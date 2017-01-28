@@ -94,14 +94,14 @@ public class Lexer {
         }
         //Desconsidera delimitadores na entrada
         for (;; readch()) {
-            if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\b') {
-                continue;
-            } else if (ch == '\n') {
-                line++; //conta linhas
-            } else if (ch == '%') { // Comentário de linha única
+            if (ch == '%') { // Comentário de linha única
                 while (!readch('\n')) {
                 }
                 line++;
+            } else if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\b') {
+                continue;
+            } else if (ch == '\n') {
+                line++; //conta linhas
             } else if (ch == '/') { // Comentário de várias linhas
                 if (readch('*')) {
                     do {

@@ -47,7 +47,7 @@ public class Syntax {
         }
 
         decl_list();
-
+        
         if (!lexer.isEOF()) {
             okAtual = eat(Tag.AC);
             ok = ok && okAtual;
@@ -79,6 +79,15 @@ public class Syntax {
 
             if (!ok) {
                 while (tok != Tag.PONTO_VIRGULA && tok != Tag.AC && !lexer.isEOF()) {
+                    if (tok == Tag.INT || tok == Tag.FLOAT) {
+                        for (String dec : declaracoes.keySet()) {
+                            if (declaracoes.get(dec) == null) {
+                                declaracoes.put(dec, tok);
+                                Token key = tabelaSimbolos.getKey(dec);
+                                tabelaSimbolos.get(key).setType(tok);
+                            }
+                        }
+                    }
                     advance();
                 }
             }
@@ -185,11 +194,6 @@ public class Syntax {
             ok = true;
             switch (tok) {
                 case Tag.ID:
-                    if ((tabelaSimbolos.get(t)) != null) {
-                        if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
-                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
-                        }
-                    }
                     okAtual = stmt();
                     ok = ok && okAtual;
 
@@ -281,7 +285,7 @@ public class Syntax {
                 okAtual = resAtual.isValid();
 
                 ok = ok && okAtual;
-                if (tipoEsperado != resAtual.getType() && tipoEsperado != 600  && resAtual.getType() != 600) {
+                if (tipoEsperado != resAtual.getType() && tipoEsperado != 600 && resAtual.getType() != 600) {
                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
                 } else {
                     Token key = tabelaSimbolos.getKey(atrib.getLexeme());
@@ -912,7 +916,7 @@ public class Syntax {
                 resAtual = simple_expr();
                 okAtual = resAtual.isValid();
 
-                if (resAtual.getType() == resAtual.getType()) {
+                if (resAntes.getType() == resAtual.getType()) {
                     boolean isTrue = false;
                     if (resAtual.getType() == Tag.INT_NUM) {
                         isTrue = (int) resAntes.getValue() == (int) resAtual.getValue();
@@ -923,7 +927,7 @@ public class Syntax {
                     resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
                     okAtual = resAtual.isValid();
                 } else {
-                    //erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -932,6 +936,7 @@ public class Syntax {
                 okAtual = resAtual.isValid();
 
                 ok = ok && okAtual;
+                break;
             case Tag.GT:
                 okAtual = relop();
                 ok = ok && okAtual;
@@ -939,18 +944,26 @@ public class Syntax {
                 resAtual = simple_expr();
                 okAtual = resAtual.isValid();
 
-                if (resAtual.getType() == resAtual.getType()) {
+                if (resAntes.getType() == resAtual.getType()) {
                     boolean isTrue = false;
-                    if (resAtual.getType() == Tag.INT_NUM) {
-                        isTrue = (int) resAntes.getValue() > (int) resAtual.getValue();
+                    if (resAntes.getType() == Tag.INT_NUM) {
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((int) resAntes.getValue() > (int) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     if (resAtual.getType() == Tag.FLOAT_NUM) {
-                        isTrue = (float) resAntes.getValue() > (float) resAtual.getValue();
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((float) resAntes.getValue() > (float) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
                     okAtual = resAtual.isValid();
                 } else {
-                    //erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica (>). Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -959,6 +972,7 @@ public class Syntax {
                 okAtual = resAtual.isValid();
 
                 ok = ok && okAtual;
+                break;
             case Tag.GE:
                 okAtual = relop();
                 ok = ok && okAtual;
@@ -966,18 +980,26 @@ public class Syntax {
                 resAtual = simple_expr();
                 okAtual = resAtual.isValid();
 
-                if (resAtual.getType() == resAtual.getType()) {
+                if (resAntes.getType() == resAtual.getType()) {
                     boolean isTrue = false;
-                    if (resAtual.getType() == Tag.INT_NUM) {
-                        isTrue = (int) resAntes.getValue() >= (int) resAtual.getValue();
+                    if (resAntes.getType() == Tag.INT_NUM) {
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((int) resAntes.getValue() >= (int) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     if (resAtual.getType() == Tag.FLOAT_NUM) {
-                        isTrue = (float) resAntes.getValue() >= (float) resAtual.getValue();
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((float) resAntes.getValue() >= (float) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
                     okAtual = resAtual.isValid();
                 } else {
-                    //erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica (>=). Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -986,6 +1008,7 @@ public class Syntax {
                 okAtual = resAtual.isValid();
 
                 ok = ok && okAtual;
+                break;
             case Tag.LT:
                 okAtual = relop();
                 ok = ok && okAtual;
@@ -993,18 +1016,26 @@ public class Syntax {
                 resAtual = simple_expr();
                 okAtual = resAtual.isValid();
 
-                if (resAtual.getType() == resAtual.getType()) {
+                if (resAntes.getType() == resAtual.getType()) {
                     boolean isTrue = false;
-                    if (resAtual.getType() == Tag.INT_NUM) {
-                        isTrue = (int) resAntes.getValue() < (int) resAtual.getValue();
+                    if (resAntes.getType() == Tag.INT_NUM) {
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((int) resAntes.getValue() < (int) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     if (resAtual.getType() == Tag.FLOAT_NUM) {
-                        isTrue = (float) resAntes.getValue() < (float) resAtual.getValue();
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((float) resAntes.getValue() < (float) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
                     okAtual = resAtual.isValid();
                 } else {
-                    //erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica (<). Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -1013,6 +1044,7 @@ public class Syntax {
                 okAtual = resAtual.isValid();
 
                 ok = ok && okAtual;
+                break;
             case Tag.LE:
                 okAtual = relop();
                 ok = ok && okAtual;
@@ -1020,18 +1052,26 @@ public class Syntax {
                 resAtual = simple_expr();
                 okAtual = resAtual.isValid();
 
-                if (resAtual.getType() == resAtual.getType()) {
+                if (resAntes.getType() == resAtual.getType()) {
                     boolean isTrue = false;
-                    if (resAtual.getType() == Tag.INT_NUM) {
-                        isTrue = (int) resAntes.getValue() <= (int) resAtual.getValue();
+                    if (resAntes.getType() == Tag.INT_NUM) {
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((int) resAntes.getValue() <= (int) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     if (resAtual.getType() == Tag.FLOAT_NUM) {
-                        isTrue = (float) resAntes.getValue() <= (float) resAtual.getValue();
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((float) resAntes.getValue() <= (float) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
                     okAtual = resAtual.isValid();
                 } else {
-                    //erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica (<=). Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -1040,6 +1080,7 @@ public class Syntax {
                 okAtual = resAtual.isValid();
 
                 ok = ok && okAtual;
+                break;
             case Tag.DIF:
                 okAtual = relop();
                 ok = ok && okAtual;
@@ -1047,18 +1088,26 @@ public class Syntax {
                 resAtual = simple_expr();
                 okAtual = resAtual.isValid();
 
-                if (resAtual.getType() == resAtual.getType()) {
+                if (resAntes.getType() == resAtual.getType()) {
                     boolean isTrue = false;
-                    if (resAtual.getType() == Tag.INT_NUM) {
-                        isTrue = (int) resAntes.getValue() != (int) resAtual.getValue();
+                    if (resAntes.getType() == Tag.INT_NUM) {
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((int) resAntes.getValue() != (int) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     if (resAtual.getType() == Tag.FLOAT_NUM) {
-                        isTrue = (float) resAntes.getValue() != (float) resAtual.getValue();
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
+                            isTrue = ((float) resAntes.getValue() != (float) resAtual.getValue());
+                        } else {
+                            isTrue = (resAntes.getType() == resAtual.getType());
+                        }
                     }
                     resAtual = new Result(isTrue, isTrue ? Tag.TRUE : Tag.FALSE, true);
                     okAtual = resAtual.isValid();
                 } else {
-                    //erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica (<>). Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
