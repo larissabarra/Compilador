@@ -281,7 +281,7 @@ public class Syntax {
                 okAtual = resAtual.isValid();
 
                 ok = ok && okAtual;
-                if (tipoEsperado != resAtual.getType()) {
+                if (tipoEsperado != resAtual.getType() && tipoEsperado != 600  && resAtual.getType() != 600) {
                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
                 } else {
                     Token key = tabelaSimbolos.getKey(atrib.getLexeme());
@@ -449,7 +449,7 @@ public class Syntax {
                     }
                     okAtual = resAtual.isValid();
                 } else {
-                    //TODO: erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -471,7 +471,7 @@ public class Syntax {
                 if (resAntes.getType() == resAtual.getType()) {
                     okAtual = resAtual.isValid();
                 } else {
-                    //TODO: erro de tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -498,6 +498,7 @@ public class Syntax {
                 resAtual = resAntes;
                 break;
             default:
+                resAtual = resAntes;
                 ok = false;
             //error("Erro na linha " + Lexer.line + ": Expressão mal-formulada.");
         }
@@ -523,8 +524,7 @@ public class Syntax {
                 if (resAtual.getType() == Tag.BOOLEAN) {
                     okAtual = resAtual.isValid();
                 } else {
-                    //TODO: Erro de Tipo
-                    okAtual = false;
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
                 }
 
                 ok = ok && okAtual;
@@ -540,7 +540,7 @@ public class Syntax {
                 if (resAtual.getType() == Tag.INT_NUM || resAtual.getType() == Tag.FLOAT_NUM) {
                     //resAtual.setValue(-((float) resAtual.getValue()));
                 } else {
-                    //TODO: Erro de Tipo
+                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
                 }
 
                 okAtual = resAtual.isValid();
@@ -676,14 +676,14 @@ public class Syntax {
 
                 if (resAntes.getType() == resAtual.getType()) {
                     if (resAtual.getType() == Tag.INT_NUM || resAtual.getType() == Tag.INT) {
-                        if (!(resAntes.getValue() instanceof String)) {
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
                             resAtual = new Result((int) resAntes.getValue() + (int) resAtual.getValue(), resAtual.getType(), true);
                         } else {
                             resAtual = new Result((int) 0, resAtual.getType(), true);
                         }
                     }
                     if (resAtual.getType() == Tag.FLOAT_NUM || resAtual.getType() == Tag.FLOAT) {
-                        if (!(resAntes.getValue() instanceof String)) {
+                        if (!(resAntes.getValue() instanceof String) && !(resAtual.getValue() instanceof String)) {
                             resAtual = new Result((float) resAntes.getValue() + (float) resAtual.getValue(), resAtual.getType(), true);
                         } else {
                             resAtual = new Result((float) 0, resAtual.getType(), true);
