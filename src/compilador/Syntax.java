@@ -18,7 +18,7 @@ public class Syntax {
     private Lexer lexer;
     private Map<String, Integer> declaracoes;
     private Env tabelaSimbolos;
-    private int tipoAtual, tipoEsperado;
+    private int tipoEsperado;
 
     int tok = 0;
     Token t;
@@ -99,7 +99,6 @@ public class Syntax {
     }
 
     private boolean decl() {
-        declaracoes.clear();
 
         boolean ok = true;
         boolean okAtual = false;
@@ -186,15 +185,11 @@ public class Syntax {
             ok = true;
             switch (tok) {
                 case Tag.ID:
-//                    if ((tabelaSimbolos.get(t)) != null) {
-//                        /*if (tabelaSimbolos.get(t).getName() == null) {
-//                           
-//                        }*/
-//                        tipoAtual = tabelaSimbolos.get(t).getType();
-//                    } else {
-//                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
-//                        
-//                   }
+                    if ((tabelaSimbolos.get(t)) != null) {
+                        if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                            error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                        }
+                    }
                     okAtual = stmt();
                     ok = ok && okAtual;
 
@@ -271,16 +266,10 @@ public class Syntax {
             case Tag.ID:
                 Word atrib = new Word(((Word) (t)).getLexeme(), t.nome, t.tag);
                 if ((tabelaSimbolos.get(t)) != null) {
-                    /*if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
-                        
-                     } else {*/
+                    if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                    }
                     tipoEsperado = tabelaSimbolos.get(t).getType();
-                    /*if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getType()) != tipoEsperado) {
-                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
-                     }*/
-                    //}
-                } else {
-                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
                 }
                 okAtual = eat(Tag.ID);
                 ok = ok && okAtual;
@@ -402,8 +391,6 @@ public class Syntax {
         boolean ok = true;
         boolean okAtual = false;
 
-        //TODO: tratar se for lambda
-        // simple-expr não gera lambda
         resAtual = term();
         okAtual = resAtual.isValid();
 
@@ -581,16 +568,12 @@ public class Syntax {
         switch (tok) {
             case Tag.ID:
                 if ((tabelaSimbolos.get(t)) != null) {
-                    //if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                    if (declaracoes.get(tabelaSimbolos.get(t).getName()) == null) {
+                        error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
+                    }
                     Id idAtual = tabelaSimbolos.get(t);
                     resAtual = new Result(idAtual.getValue(), idAtual.getType(), true);
-
                 } else {
-                    /*if (tipoEsperado != Tag.ANY && declaracoes.get(tabelaSimbolos.get(t).getName()) != tipoEsperado) {
-                     error("Erro na linha " + Lexer.line + ": Erro de semântica. Tipo incorreto.");
-                     }*/
-                    //    }
-                    error("Erro na linha " + Lexer.line + ": Erro de semântica. Variável " + t.toString() + " não declarada.");
                     resAtual = new Result(null, Tag.ERROR, false);
                 }
                 okAtual = eat(Tag.ID);
@@ -692,11 +675,19 @@ public class Syntax {
                 ok = ok && okAtual;
 
                 if (resAntes.getType() == resAtual.getType()) {
-                    if (resAtual.getType() == Tag.INT_NUM) {
-                        resAtual = new Result((int) resAntes.getValue() + (int) resAtual.getValue(), resAtual.getType(), true);
+                    if (resAtual.getType() == Tag.INT_NUM || resAtual.getType() == Tag.INT) {
+                        if (!(resAntes.getValue() instanceof String)) {
+                            resAtual = new Result((int) resAntes.getValue() + (int) resAtual.getValue(), resAtual.getType(), true);
+                        } else {
+                            resAtual = new Result((int) 0, resAtual.getType(), true);
+                        }
                     }
-                    if (resAtual.getType() == Tag.FLOAT_NUM) {
-                        resAtual = new Result((float) resAntes.getValue() + (float) resAtual.getValue(), resAtual.getType(), true);
+                    if (resAtual.getType() == Tag.FLOAT_NUM || resAtual.getType() == Tag.FLOAT) {
+                        if (!(resAntes.getValue() instanceof String)) {
+                            resAtual = new Result((float) resAntes.getValue() + (float) resAtual.getValue(), resAtual.getType(), true);
+                        } else {
+                            resAtual = new Result((float) 0, resAtual.getType(), true);
+                        }
                     }
                 }
 

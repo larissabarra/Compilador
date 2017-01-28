@@ -221,14 +221,20 @@ public class Lexer {
             } while (Character.isDigit(ch));
             if (isFloat) {
                 val += (resto / Math.pow(10, (("" + resto).length())));
-                tabelaSimbolos.put(new NumFloat(val), new Id(""+val, Tag.FLOAT_NUM));
+                Id idNumFloat = new Id(""+val, Tag.FLOAT_NUM);
+                idNumFloat.setValue(val);
+                tabelaSimbolos.put(new NumFloat(val), idNumFloat);
                 return new NumFloat(val);
             } else {
                 if (isZero) {
-                    tabelaSimbolos.put(new NumInt(0), new Id("0", Tag.INT_NUM));
+                    Id idNumInt = new Id("0", Tag.INT_NUM);
+                    idNumInt.setValue(0);
+                    tabelaSimbolos.put(new NumInt(0), idNumInt);
                     return new NumInt(0); //só retorno 0 se for int, porque o float pode começar com 0
                 }
-                tabelaSimbolos.put(new NumInt(value), new Id(""+ value, Tag.INT_NUM));
+                Id idNumInt = new Id(""+ value, Tag.INT_NUM);
+                idNumInt.setValue(value);
+                tabelaSimbolos.put(new NumInt(value), idNumInt);
                 return new NumInt(value);
             }
         }  //Literal
@@ -251,7 +257,9 @@ public class Lexer {
             if (id != null) {
                 return w;
             }
-            tabelaSimbolos.put(w, new Id(s, Tag.LITERAL));
+            Id idLiteral = new Id(s, Tag.LITERAL);
+            idLiteral.setValue(s);
+            tabelaSimbolos.put(w, idLiteral);
             return w;
         } //Identificadores
         else if (Character.isLetter(ch)) {
@@ -271,7 +279,9 @@ public class Lexer {
 
             w = new Word(s, "ID", Tag.ID);
             
-            tabelaSimbolos.put(w, new Id(s, Tag.ID));
+            Id idID = new Id(s, Tag.ID);
+            idID.setValue(s);
+            tabelaSimbolos.put(w, idID);
             return w;
         } //outros caracteres reconhecidos
         else {// if(ch == ':' || ch == ';' || ch == ',' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '*' || ch == '+' || ch == '-') {
